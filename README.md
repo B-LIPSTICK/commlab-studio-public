@@ -1,3 +1,5 @@
+[![CI](https://github.com/B-LIPSTICK/commlab-studio-public/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/B-LIPSTICK/commlab-studio-public/actions/workflows/ci.yml)
+
 # CommLab Studio
 
 通信原理虚拟仿真实验 · 教学助手

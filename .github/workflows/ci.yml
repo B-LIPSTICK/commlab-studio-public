@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  source-check:
+    runs-on: windows-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies without Electron download
+        run: npm ci --ignore-scripts
+
+      - name: Syntax check
+        run: npm run check:js
+
+      - name: Native unit tests
+        run: node --test app/native/devices/__tests__/coding.test.js app/native/devices/__tests__/comuse.test.js app/native/devices/__tests__/draw.test.js app/native/devices/__tests__/linecode.test.js app/native/devices/__tests__/modulation.test.js
