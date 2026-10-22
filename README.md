@@ -8,8 +8,8 @@
 
 ## 下载
 
-- 安装版：https://github.com/B-LIPSTICK/commlab-studio-public/releases/download/v0.1.6/CommLabStudio-0.1.6-setup.exe
-- 便携版：https://github.com/B-LIPSTICK/commlab-studio-public/releases/download/v0.1.6/CommLabStudio-0.1.6-portable.zip
+- 安装版：https://github.com/B-LIPSTICK/commlab-studio-public/releases/download/v0.1.7/CommLabStudio-0.1.7-setup.exe
+- 便携版：https://github.com/B-LIPSTICK/commlab-studio-public/releases/download/v0.1.7/CommLabStudio-0.1.7-portable.zip
 
 ## 公开源码说明
 
@@ -69,9 +69,10 @@ npm run dist:portable    # 本机构建：NSIS + portable zip
 ## 38 道实验
 
 - native 内核覆盖 38/38，100 张 SVG，0 错误
-- v0.1.6 公开/私有 portable 均通过 38/38 全量回归
+- v0.1.7 公开/私有 portable 均通过 38/38 全量回归
 - 单题基础题 1–5 ms，BER 题约 30–600 ms
 - 结果包括波形、频谱、星座图、误码率指标
+- 工作台支持直接导入 Rainier `.ocj` 工程并解算
 
 ## 目录
 
