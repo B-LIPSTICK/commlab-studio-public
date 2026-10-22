@@ -4,7 +4,7 @@
 
 把 38 道虚拟仿真实验做成一个可安装的桌面工具：题目、参数、拓扑、仿真、报告，一站式。
 
-## 公开源码说明
+## 下载\n\n- 安装版：https://github.com/B-LIPSTICK/commlab-studio-public/releases/download/v0.1.5/CommLabStudio-0.1.5-setup.exe\n- 便携版：https://github.com/B-LIPSTICK/commlab-studio-public/releases/download/v0.1.5/CommLabStudio-0.1.5-portable.zip\n\n## 公开源码说明
 
 这个仓库是**公开源码快照**，不包含：
 
@@ -53,8 +53,8 @@ Copy-Item report-cover.example.json report-cover.json
 
 ```powershell
 npm run dist:public      # 公开包：NSIS + portable zip，输出 release\public
-npm run dist             # 私有/完整构建：NSIS
-npm run dist:portable    # 私有/完整构建：NSIS + portable zip
+npm run dist             # 本机构建：NSIS
+npm run dist:portable    # 本机构建：NSIS + portable zip
 ```
 
 公开构建会排除课程原文、平台脚本、OCJ 模板、课程图片和校内地址。详细说明见 [`docs/BUILD.md`](docs/BUILD.md)。
@@ -62,7 +62,7 @@ npm run dist:portable    # 私有/完整构建：NSIS + portable zip
 ## 38 道实验
 
 - native 内核覆盖 38/38，100 张 SVG，0 错误
-- v0.1.4 公开/私有 portable 均通过 38/38 全量回归
+- v0.1.5 公开/私有 portable 均通过 38/38 全量回归
 - 单题基础题 1–5 ms，BER 题约 30–600 ms
 - 结果包括波形、频谱、星座图、误码率指标
 
