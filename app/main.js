@@ -312,6 +312,16 @@ function readExperimentText(rel) {
   throw new Error("课程原文不存在：" + normalized);
 }
 
+function readCourseText(rel) {
+  try {
+    return { ok: true, text: readExperimentText(rel) };
+  } catch (err) {
+    const detail = String((err && err.message) || err);
+    const missing = /不存在|ENOENT|not found/i.test(detail);
+    return { ok: false, reason: missing ? "missing" : "unavailable", detail };
+  }
+}
+
 const CRC32_TABLE = (() => {
   const table = new Uint32Array(256);
   for (let i = 0; i < 256; i++) {
@@ -878,7 +888,7 @@ function createWindow() {
 }
 
 ipcMain.handle("experiments:list", () => listExperiments());
-ipcMain.handle("experiments:read", (_e, rel) => readExperimentText(rel));
+ipcMain.handle("experiments:read", (_e, rel) => readCourseText(rel));
 ipcMain.handle("report:export", async (e, payload = {}) => {
   const parent = BrowserWindow.fromWebContents(e.sender);
   return exportReportToFile(payload, parent);

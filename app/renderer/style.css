@@ -47,13 +47,13 @@ body{
 .toc-count{margin:13px 22px 5px;font-size:11px;color:var(--muted);letter-spacing:.06em}
 .list{list-style:none;margin:0;padding:0 10px 12px;overflow:auto;flex:1;min-height:0}
 .list li{
-  display:grid;grid-template-columns:26px 1fr;gap:8px;align-items:baseline;
+  display:grid;grid-template-columns:44px 1fr;gap:8px;align-items:baseline;
   padding:9px 12px;border-radius:5px;cursor:pointer;color:var(--ink-2);
   transition:background .16s ease,color .16s ease;
 }
 .list li:hover{background:rgba(0,0,0,.028)}
 .list li .no{
-  font-family:var(--mono);font-size:11px;color:#9A9E9F;
+  font-family:var(--mono);font-size:11px;color:#9A9E9F;white-space:nowrap;
   font-variant-numeric:tabular-nums;text-align:right;transition:color .16s ease;
 }
 .list li .nm{font-size:13.5px;line-height:1.45}

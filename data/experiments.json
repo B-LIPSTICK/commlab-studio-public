@@ -2449,7 +2449,7 @@
     {
      "var": "D",
      "fn": "ComUse_AWGN",
-     "args": "C,3,16384",
+     "args": "C,3,4096",
      "devName": "高斯白噪声信道"
     },
     {
@@ -2480,7 +2480,7 @@
     "retries": 1,
     "backend": "auto",
     "reducedBits": 4096,
-    "note": "16k 在 Rainier 上 >300s；4k 保持卷积码纠错含义"
+    "note": "16k 在 Rainier 上 >300s；4k 保持卷积码纠错含义；AWGN L 必须与 4k 信源一致"
    }
   },
   {

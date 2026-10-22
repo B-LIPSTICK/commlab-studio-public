@@ -3,6 +3,7 @@ let CUR = null;
 let ACTIVE_RUN = null;
 let RUN_PROGRESS_READY = false;
 let COURSEPACK = null;
+let DUPLICATE_EXP_NOS = new Set();
 let LAST_RUNS = new Map();
 
 const RUN_PHASE_LABELS = {
@@ -190,13 +191,18 @@ async function boot() {
 
   $("#search").addEventListener("input", (e) => {
     const q = e.target.value.trim().toLowerCase();
+    // 纯数字优先匹配题号；order 用 #17 / 第17题 / order:17 检索。
     const hit = !q ? ALL : ALL.filter((x) =>
       x.title.toLowerCase().includes(q) ||
       (x.devices || []).join(" ").toLowerCase().includes(q) ||
       (x.moduleTitle || "").includes(q) ||
       (x.module || "").includes(q) ||
-      String(x.order) === q ||
-      String(x.expNo) === q);
+      (String(x.order) === q && !DUPLICATE_EXP_NOS.has(q)) ||
+      q === `#${x.order}` ||
+      q === `第${x.order}题` ||
+      q === `order:${x.order}` ||
+      String(x.expNo) === q ||
+      displayExpNo(x).toLowerCase() === q);
     renderList(hit);
   });
 
@@ -250,6 +256,12 @@ async function boot() {
 async function refreshCatalog() {
   const data = await window.api.list();
   ALL = Array.isArray(data.experiments) ? data.experiments : [];
+  const expNoCounts = new Map();
+  for (const x of ALL) {
+    const key = String(x.expNo);
+    expNoCounts.set(key, (expNoCounts.get(key) || 0) + 1);
+  }
+  DUPLICATE_EXP_NOS = new Set([...expNoCounts].filter(([, count]) => count > 1).map(([key]) => key));
   COURSEPACK = window.api.coursepackStatus ? await window.api.coursepackStatus() : null;
   updateCoursepackUi();
   $("#count").textContent = ALL.length
@@ -335,6 +347,19 @@ async function clearCoursepack() {
   }
 }
 
+async function readCourseText(rel) {
+  const result = await window.api.read(rel);
+  if (result && typeof result === "object") {
+    if (result.ok === false) {
+      const error = new Error(result.detail || result.reason || "课程文件不可用");
+      error.reason = result.reason || "unavailable";
+      throw error;
+    }
+    return String(result.text == null ? "" : result.text);
+  }
+  return String(result == null ? "" : result);
+}
+
 function coursepackMissingHtml(exp, err) {
   const installed = !!(COURSEPACK && COURSEPACK.installed);
   const title = installed ? "课程包缺少这篇原文" : "这份实验的课程原文不在安装包中";
@@ -352,6 +377,14 @@ function coursepackMissingHtml(exp, err) {
     '</div>' +
     '<p class="es-sub es-detail">支持 ZIP 或文件夹：experiments.json + experiments/*.md（可选 scripts/）。</p>' +
   '</div>';
+}
+
+function displayExpNo(exp) {
+  const raw = exp && exp.expNo != null ? String(exp.expNo).trim() : "";
+  if (!raw) return "";
+  const suffix = String((exp && exp.title) || "").match(/[-－]([12])\s*$/);
+  const label = /^\d+$/.test(raw) ? raw.padStart(2, "0") : raw;
+  return suffix ? label + "-" + suffix[1] : label;
 }
 
 const MODULE_ORDER = ["模块一", "模块二", "模块三", "模块四", "模块五", "模块六", "模块七"];
@@ -377,13 +410,15 @@ function renderList(items) {
     head.querySelector(".gt").textContent = k === "其他" ? "其他" : k + " · " + (first.moduleTitle || "");
     head.querySelector(".gc").textContent = first.chapters || "";
     ol.appendChild(head);
-    const sorted = groups.get(k).slice().sort((a, b) => Number(a.expNo) - Number(b.expNo));
+    const sorted = groups.get(k).slice().sort((a, b) =>
+      displayExpNo(a).localeCompare(displayExpNo(b), "zh-CN", { numeric: true }) ||
+      Number(a.order) - Number(b.order));
     for (const x of sorted) {
       const li = document.createElement("li");
       li.dataset.order = x.order;
       const no = document.createElement("span");
       no.className = "no";
-      no.textContent = String(x.expNo).padStart(2, "0");
+      no.textContent = displayExpNo(x);
       const nm = document.createElement("span");
       nm.className = "nm";
       nm.textContent = x.title;
@@ -433,7 +468,7 @@ async function select(x) {
   const observers = Array.isArray(x.observers) ? x.observers : [];
   $("#title").textContent = x.title;
   $("#meta").innerHTML = [
-    `实验${x.expNo}`,
+    `实验${displayExpNo(x)}`,
     `第 ${x.order} 题`,
     `${chain.length} 个器件`,
     `${observers.length} 个观测`
@@ -441,7 +476,7 @@ async function select(x) {
 
   $("#pane-req").innerHTML = skeleton();
   try {
-    const md = await window.api.read(x.markdown);
+    const md = await readCourseText(x.markdown);
     const body = normalizeBody(md, x.title);
     $("#pane-req").innerHTML = await renderDoc(x, body);
   } catch (err) {
@@ -481,7 +516,7 @@ async function select(x) {
      </table>`;
 
   try {
-    $("#script").textContent = await window.api.read(x.script);
+    $("#script").textContent = await readCourseText(x.script);
   } catch {
     $("#script").textContent =
       "安装包不包含平台脚本原文（.m）。\n" +
