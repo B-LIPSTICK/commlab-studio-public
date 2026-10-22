@@ -12,6 +12,7 @@ const { buildGraphScript } = require("./graph");
 const updater = require("./updater");
 const engine = require("./engine");
 const report = require("./report");
+const { parseOcj } = require("./ocj-import");
 
 // Public builds intentionally omit the large third-party OCJ template table.
 // Keep the module lazy so the app can still start and offer course-pack import.
@@ -1116,6 +1117,26 @@ ipcMain.handle("workbench:load", async () => {
   const raw = fs.readFileSync(r.filePaths[0], "utf8");
   try { return { ok: true, data: JSON.parse(raw), path: r.filePaths[0] }; }
   catch (e) { return { ok: false, reason: "文件不是有效 JSON" }; }
+});
+
+ipcMain.handle("workbench:importOcj", async (_e, sourcePath) => {
+  let file = typeof sourcePath === "string" && sourcePath.trim() ? path.resolve(sourcePath) : "";
+  if (!file) {
+    const r = await dialog.showOpenDialog({
+      properties: ["openFile"],
+      filters: [{ name: "Rainier OCJ 工程", extensions: ["ocj"] }],
+    });
+    if (r.canceled || !r.filePaths.length) return { ok: false, canceled: true };
+    file = r.filePaths[0];
+  }
+  try {
+    const raw = fs.readFileSync(file, "utf8");
+    const devices = JSON.parse(safeRead("data/devices.json"));
+    const parsed = parseOcj(raw, devices);
+    return { ok: true, path: file, name: path.basename(file, path.extname(file)), ...parsed };
+  } catch (err) {
+    return { ok: false, reason: String((err && err.message) || err) };
+  }
 });
 
 ipcMain.handle("workbench:devices", () => JSON.parse(safeRead("data/devices.json")));

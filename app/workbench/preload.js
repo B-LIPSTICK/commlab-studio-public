@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld("api", {
   save: (data) => ipcRenderer.invoke("workbench:save", data),
   saveSvg: (payload) => ipcRenderer.invoke("workbench:saveSvg", payload),
   load: () => ipcRenderer.invoke("workbench:load"),
+  importOcj: (path) => ipcRenderer.invoke("workbench:importOcj", path),
   runGraph: (graph) => ipcRenderer.invoke("workbench:run", graph),
   openLab: (graph) => ipcRenderer.invoke("lab:open", graph),
 });

@@ -154,6 +154,42 @@ async function boot() {
     render();
     $("#drawerStatus").textContent = "已打开：" + r.path;
   });
+  $("#btnImportOcj").addEventListener("click", () => importOcj());
+  async function importOcj(sourcePath) {
+    const r = await window.api.importOcj(sourcePath);
+    if (!r || !r.ok) {
+      if (r && r.canceled) return;
+      $("#drawer").classList.add("open");
+      $("#drawerStatus").textContent = "导入 OCJ 失败";
+      $("#drawerBody").innerHTML = '<pre class="log">' + esc((r && r.reason) || "未知错误") + "</pre>";
+      return;
+    }
+    const byCn = new Map(DEVICES.map((d) => [d.className, d]));
+    nodes = (r.nodes || []).map((n) => {
+      const dev = byCn.get(n.className) || {
+        className: n.className, componentName: n.componentName || n.className,
+        inputs: n.inputs, outputs: n.outputs,
+      };
+      return {
+        id: n.id, dev, x: n.x, y: n.y, inputs: n.inputs, outputs: n.outputs,
+        values: n.values || [], label: n.label || "",
+      };
+    }).filter((n) => n.dev);
+    edges = r.edges || [];
+    seq = nodes.reduce((m, n) => Math.max(m, Number(String(n.id).replace(/\D/g, "")) || 0), 0);
+    selected = null;
+    wireCache.clear();
+    render();
+    requestAnimationFrame(() => { fitView(); render(); });
+    const warnings = Array.isArray(r.warnings) ? r.warnings : [];
+    $("#drawer").classList.add("open");
+    $("#drawerStatus").textContent = "已导入 OCJ · " + nodes.length + " 个器件 / " + edges.length + " 条连线" +
+      (warnings.length ? " · " + warnings.length + " 条提示" : "");
+    $("#drawerBody").innerHTML = warnings.length
+      ? '<pre class="log">' + esc(warnings.join("\n")) + "</pre>"
+      : '<p class="muted">工程已载入。点击“运行仿真”开始解算。</p>';
+  }
+  window.importOcj = importOcj;
   $("#btnOld").addEventListener("click", async () => {
     const btn = $("#btnOld");
     const label = btn.textContent;
@@ -271,6 +307,27 @@ function portPos(n, side, i) {
   const total = side === "in" ? n.inputs : n.outputs;
   const gap = H / (total + 1);
   return { x: side === "in" ? n.x : n.x + W, y: n.y + gap * (i + 1) };
+}
+
+function fitView() {
+  if (!nodes.length) return;
+  const rect = $("#canvas").getBoundingClientRect();
+  const cw = rect.width || 1200;
+  const ch = rect.height || 800;
+  const pad = 70;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const n of nodes) {
+    minX = Math.min(minX, n.x);
+    minY = Math.min(minY, n.y);
+    maxX = Math.max(maxX, n.x + W);
+    maxY = Math.max(maxY, n.y + H);
+  }
+  const bw = Math.max(1, maxX - minX);
+  const bh = Math.max(1, maxY - minY);
+  const s = Math.min(1.2, Math.max(0.22, Math.min((cw - pad * 2) / bw, (ch - pad * 2) / bh)));
+  view.s = s;
+  view.x = cw / 2 - ((minX + maxX) / 2) * s;
+  view.y = ch / 2 - ((minY + maxY) / 2) * s;
 }
 
 // ---- 正交走线：绕开器件本体，端口处留 16px 出线 ----
@@ -932,6 +989,7 @@ function renderInspector(n) {
   }
   const rows = [
     ["名称", n.dev.componentName || "-"],
+    ...(n.label ? [["工程标签", n.label]] : []),
     ["类名", n.dev.className],
     ["输入口", String(n.inputs)],
     ["输出口", String(n.outputs)],
