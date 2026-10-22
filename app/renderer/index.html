@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>CommLab Studio</title>
+<link rel="stylesheet" href="style.css?v=16" />
+</head>
+<body>
+<div id="updateBar" class="update-bar hide">
+  <span class="update-dot"></span>
+  <span id="updateText">发现新版本</span>
+  <button id="updateGo" class="update-go">一键更新</button>
+  <button id="updateLater" class="update-x" title="稍后再说" aria-label="稍后再说">×</button>
+</div>
+<aside class="toc">
+  <div class="toc-head">
+    <button id="theme" class="theme-btn" title="切换日间 / 夜间" aria-label="切换主题">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle class="sun" cx="12" cy="12" r="4.2"></circle>
+        <g class="rays">
+          <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"></path>
+        </g>
+        <path class="moon" d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2z"></path>
+      </svg>
+    </button>
+    <h1>CommLab Studio</h1>
+    <p class="sub">通信原理虚拟仿真实验</p>
+  </div>
+
+  <div class="search-wrap">
+    <input id="search" type="search" placeholder="搜索实验或器件" autocomplete="off" spellcheck="false" />
+  </div>
+
+  <div class="act">
+    <button id="btnRun" class="lab-btn">运行仿真</button>
+    <button id="btnReport" class="lab-btn report">导出实验报告 PDF</button>
+    <button id="btnWorkbench" class="lab-btn">新版实验台</button>
+    <button id="btnLab" class="lab-btn ghost">老版实验台</button>
+  </div>
+  <div class="cp-strip" aria-live="polite">
+    <span id="cpState" class="cp-state">课程包：未导入</span>
+    <span class="cp-actions">
+      <button id="btnCoursepack" class="cp-mini" type="button">导入</button>
+      <button id="btnCoursepackClear" class="cp-mini cp-clear hide" type="button">清除</button>
+    </span>
+  </div>
+
+  <p class="toc-count" id="count"></p>
+  <ol id="list" class="list"></ol>
+  <div class="toc-foot">
+    <a class="gh-link" href="https://github.com/B-LIPSTICK/commlab-studio-public" target="_blank" rel="noreferrer"
+       title="打开 GitHub 仓库" aria-label="GitHub 仓库">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+      <span>GitHub</span>
+    </a>
+  </div>
+</aside>
+
+<main class="stage">
+  <section id="envPanel" class="env-panel" aria-labelledby="envTitle">
+    <div class="env-head">
+      <div class="env-heading">
+        <span class="env-kicker">首次运行检查</span>
+        <h2 id="envTitle">环境状态</h2>
+      </div>
+      <div class="env-actions">
+        <span id="envSummary" class="env-summary" aria-live="polite">检测中…</span>
+        <button id="envRefresh" class="env-refresh" type="button">重新检测</button>
+        <button id="envToggle" class="env-toggle" type="button" aria-expanded="true">收起</button>
+      </div>
+    </div>
+    <div id="envRoutes" class="env-routes" aria-live="polite"></div>
+    <div id="envList" class="env-grid" aria-live="polite">
+      <p class="env-loading">正在检查引擎、9002 端口、实验台和 vlab_offline…</p>
+    </div>
+    <p class="env-note">公开安装包不包含 Rainier 引擎、<code>.m</code>、vlab_offline 或学校课程图片。路径 A 需本机已有学校客户端；路径 B 为内置自研 native 内核，当前可用（38/38），不依赖 Rainier。</p>
+  </section>
+
+  <header class="doc-head">
+    <h2 id="title">选择左侧实验</h2>
+    <p id="meta" class="meta"></p>
+    <nav class="doc-nav" id="tabs">
+      <button data-tab="req" class="on">实验要求</button>
+      <button data-tab="chain">器件与连线</button>
+      <button data-tab="script">平台脚本</button>
+        <button data-tab="run">运行结果</button>
+    </nav>
+  </header>
+
+  <section class="body">
+    <article id="pane-req" class="pane on doc"></article>
+    <div id="pane-chain" class="pane"></div>
+    <div id="pane-script" class="pane"><pre id="script"></pre></div>
+    <div id="pane-run" class="pane"><div id="run-body"></div></div>
+  </section>
+</main>
+<script src="docfix.js"></script>
+<script src="docfigs.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<title>工作台 · CommLab Studio</title>
+<link rel="stylesheet" href="workbench.css" />
+</head>
+<body>
+<header class="bar">
+  <div class="brand">
+    <span class="dot"></span>
+    <h1>工作台</h1>
+    <span class="tag">新版实验台</span>
+  </div>
+  <div class="tools">
+    <button id="btnFromExp" class="btn">从题库载入</button>
+    <button id="btnSave" class="btn">保存</button>
+    <button id="btnLoad" class="btn">打开</button>
+    <button id="btnRun" class="btn primary">运行仿真</button>
+    <button id="btnClear" class="btn">清空</button>
+    <button id="btnOld" class="btn ghost">老版实验台</button>
+  </div>
+</header>
+
+<main class="grid">
+  <aside class="palette">
+    <input id="search" class="search" type="search" placeholder="搜索器件" />
+    <div id="paletteList" class="palette-list"></div>
+  </aside>
+
+  <section class="stage">
+    <svg id="canvas" class="canvas"></svg>
+    <div class="empty" id="hint">
+  <svg viewBox="0 0 460 240" aria-hidden="true">
+    <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M40 196 H420"/>
+      <rect x="62" y="86" width="150" height="104" rx="6"/>
+      <rect x="76" y="100" width="122" height="62" rx="3"/>
+      <path d="M84 146 h14 v-26 h18 v26 h14 v-26 h18 v26 h14 v-26 h18"/>
+      <circle cx="86" cy="178" r="3"/><circle cx="100" cy="178" r="3"/>
+      <rect x="268" y="104" width="120" height="86" rx="6"/>
+      <rect x="280" y="116" width="96" height="48" rx="3"/>
+      <path d="M286 140 c8 -18 16 -18 24 0 c8 18 16 18 24 0 c8 -18 16 -18 24 0"/>
+      <circle cx="292" cy="178" r="3"/><circle cx="304" cy="178" r="3"/>
+      <path d="M212 140 C 240 140, 240 120, 268 120"/>
+      <path d="M212 140 C 240 140, 240 160, 268 160"/>
+    </g>
+    <circle cx="240" cy="140" r="4" fill="#A63A2C"/>
+  </svg>
+  <p>从左侧点选器件放到画布</p>
+  <p class="sub">点输出口再点输入口即可连线</p>
+</div>
+  </section>
+
+  <aside class="inspector">
+    <h2>属性</h2>
+    <div id="inspectorBody" class="inspector-body">
+      <p class="muted">未选中器件</p>
+    </div>
+  </aside>
+</main>
+
+<div class="picker" id="picker">
+  <div class="picker-box">
+    <div class="picker-head">
+      <input id="pickerSearch" class="search" placeholder="搜索实验" />
+      <button id="pickerClose" class="btn ghost">关闭</button>
+    </div>
+    <div id="pickerList" class="picker-list"></div>
+  </div>
+</div>
+
+<section class="drawer" id="drawer">
+  <div class="drawer-head">
+    <button id="drawerToggle" class="drawer-toggle">运行结果</button>
+    <span id="drawerStatus" class="drawer-status"></span>
+  </div>
+  <div id="drawerBody" class="drawer-body"></div>
+</section>
+
+<script src="icons.js"></script>
+<script src="device-icons.js"></script>
+<script src="workbench.js"></script>
+</body>
+</html>

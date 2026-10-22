@@ -1,0 +1,86 @@
+% !TEX program = xelatex
+\documentclass[12pt,a4paper]{article}
+\newcommand{\experimentnumber}{X}
+\input{preamble.tex}
+
+\begin{document}
+
+% ================= 封面 =================
+\begin{titlepage}
+\centering
+\vspace*{0.7cm}
+{\fontsize{36pt}{44pt}\selectfont\bfseries 北华大学实验报告\par}
+\vspace{9.6cm}
+
+\begin{flushleft}
+\hspace{2.65cm}%
+{\renewcommand{\arraystretch}{1.45}%
+\begin{tabular}{@{}l@{}}
+\coverfieldLong{所属课程名称}{数字传输系统} \\
+\coverfieldShort{实验类型}{虚拟仿真实验} \\
+\coverblankShort{实验日期} \\
+\coverfieldShort{班级}{} \\
+\coverfieldShort{学号}{} \\
+\coverfieldShort{姓名}{} \\
+\coverblankShort{成绩} \\
+\end{tabular}}%
+\end{flushleft}
+\end{titlepage}
+
+% ================= 正文 =================
+\newpage
+\reportframe
+\begin{tcolorbox}[
+  enhanced,
+  breakable,
+  width=\textwidth,
+  colback=white,
+  colframe=white,
+  boxrule=0pt,
+  arc=0pt,
+  sharp corners,
+  left=0pt,
+  right=0pt,
+  top=0.28cm,
+  bottom=0.28cm,
+  before skip=0pt,
+  after skip=0pt,
+  fontupper=\fontsize{12pt}{18pt}\selectfont
+]
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+
+\sectionheading{【实验题目名称】}
+【实验题目：请填写】
+
+\sectionrule
+\sectionheading{【实验目的与要求】}
+【实验目的与要求：请填写】
+
+\sectionrule
+\sectionheading{【实验器材】}
+【实验器材：只写平台器件名】
+
+\sectionrule
+\sectionheading{【实验环境】}
+电脑。
+
+\sectionrule
+\sectionheading{【实验原理及方案设计】}
+【实验原理及方案设计：请填写】
+
+\sectionrule
+\sectionheading{【结论】}
+【结论：请填写】
+
+\sectionrule
+\sectionheading{【指导教师评语及成绩】}
+\par\indent {\fontsize{14pt}{20pt}\selectfont 评语：}
+
+\vspace{1.4cm}
+
+\par\indent {\fontsize{14pt}{20pt}\selectfont 成绩：}
+
+\end{tcolorbox}
+
+\end{document}

@@ -1,0 +1,742 @@
+[
+ {
+  "className": "BERCalculation_Biterr_Comm",
+  "componentName": "误比特率计算器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 2,
+  "outputs": 0,
+  "params": {}
+ },
+ {
+  "className": "ChannalCoding_ConvEncode_Comm",
+  "componentName": "卷积编码器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ChannalCoding_ConvDecode_Comm",
+  "componentName": "卷积译码器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ChannalCoding_HammingEncode_Comm",
+  "componentName": "汉明编码器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ChannalCoding_HammingDecode_Comm",
+  "componentName": "汉明译码器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_Adder_Comm",
+  "componentName": "加法器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 2,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_AWGN_Comm",
+  "componentName": "AWGN信道",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_Delay_Comm",
+  "componentName": "延迟器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_DownSample_Comm",
+  "componentName": "信号抽取器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_Judge_Comm",
+  "componentName": "判决器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_Mod2_Comm",
+  "componentName": "模二加",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 2,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_Multiplier_Comm",
+  "componentName": "乘法器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 2,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_OnePass_Comm",
+  "componentName": "正开关",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 2,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_Rectifier_Comm",
+  "componentName": "整流器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_Relay_Comm",
+  "componentName": "信号中继器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_Sample_Comm",
+  "componentName": "信号采样器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_Select_Comm",
+  "componentName": "信号选通器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_Subtractor_Comm",
+  "componentName": "减法器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 2,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "ComUse_ZeroPass_Comm",
+  "componentName": "负开关",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 2,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Discriminator_EnvelopDetector_Comm",
+  "componentName": "包络检波器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Discriminator_Freq_Comm",
+  "componentName": "鉴频器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Draw_Distribution_Comm",
+  "componentName": "信号分布图",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 0,
+  "params": {}
+ },
+ {
+  "className": "Draw_EYEdiagram_Comm",
+  "componentName": "眼图",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 0,
+  "params": {}
+ },
+ {
+  "className": "Draw_Plot_Comm",
+  "componentName": "示波器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 0,
+  "params": {}
+ },
+ {
+  "className": "Draw_PowerSpectrum_Comm",
+  "componentName": "功率谱分析仪",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 0,
+  "params": {}
+ },
+ {
+  "className": "Draw_ScatterPlot_Comm",
+  "componentName": "星座图",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 0,
+  "params": {}
+ },
+ {
+  "className": "Draw_SignalSpectrum_Comm",
+  "componentName": "频谱分析仪",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 0,
+  "params": {}
+ },
+ {
+  "className": "Draw_Stairs_Comm",
+  "componentName": "信号梯形图",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 0,
+  "params": {}
+ },
+ {
+  "className": "Draw_Stem_Comm",
+  "componentName": "信号针状图",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 0,
+  "params": {}
+ },
+ {
+  "className": "Filter_BPF_Comm",
+  "componentName": "带通滤波器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Filter_BEF_Comm",
+  "componentName": "带阻滤波器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Filter_LPF_Comm",
+  "componentName": "低通滤波器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Filter_HPF_Comm",
+  "componentName": "高通滤波器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "LineCode_Ami_Comm",
+  "componentName": "AMI码",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "LineCode_Cmi_Comm",
+  "componentName": "CMI码",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "LineCode_Diff_Comm",
+  "componentName": "差分码",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "LineCode_Dnrz_Comm",
+  "componentName": "双极性不归零码",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "LineCode_Drz_Comm",
+  "componentName": "双极性归零码",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "LineCode_Hdb3_Comm",
+  "componentName": "HDB3码",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "LineCode_Manchester_Comm",
+  "componentName": "曼彻斯特码",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "LineCode_Snrz_Comm",
+  "componentName": "单极性不归零码",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "LineCode_Srz_Comm",
+  "componentName": "单极性归零码",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Modulation_Freq_Comm",
+  "componentName": "频率调制器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Modulation_Phrase_Comm",
+  "componentName": "相位调制器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Modulation_FskMod_Comm",
+  "componentName": "2FSK调制器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Modulation_FskDemod_Comm",
+  "componentName": "2FSK解调器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Modulation_PskMod_Comm",
+  "componentName": "PSK调制器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Modulation_PskDemod_Comm",
+  "componentName": "PSK解调器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Modulation_QamMod_Comm",
+  "componentName": "QAM调制器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Modulation_QamDemod_Comm",
+  "componentName": "QAM解调器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Multipath_Fading_Comm",
+  "componentName": "加多径干扰",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Multipath_Zero_Comm",
+  "componentName": "迫零均衡",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SigTransfer_Bi2toM_Comm",
+  "componentName": "2-M进制转换器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SigTransfer_DeMto2_Comm",
+  "componentName": "M-2进制转换器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SigTransfer_HexTransform_Comm",
+  "componentName": "2-4进制转换器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SigTransfer_Fourto2_Comm",
+  "componentName": "4-2进制转换器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SigTransfer_Hilbert_Comm",
+  "componentName": "希尔伯特变换器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SigTransfer_MultiJudge_Comm",
+  "componentName": "4-2判决器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SigTransfer_ParalleData_Comm",
+  "componentName": "串并变换器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SigTransfer_PSTransform_Comm",
+  "componentName": "并串变换器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 2,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Source_Cosin_Comm",
+  "componentName": "余弦信号发生器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 0,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Source_DC_Comm",
+  "componentName": "直流信号源",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 0,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Source_Randi_Comm",
+  "componentName": "序列码产生器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 0,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Source_Rectpuls_Comm",
+  "componentName": "单矩形脉冲信号",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 0,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Source_Sa_Comm",
+  "componentName": "Sa函数",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 0,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SourceCoding_DeltaMCoding_Comm",
+  "componentName": "DeltaM编码器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 2,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SourceCoding_DeltaMDecoding_Comm",
+  "componentName": "DeltaM译码器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SourceCoding_DeltaMPredict_Comm",
+  "componentName": "DeltaM信号预测",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SourceCoding_PCMCoding_Comm",
+  "componentName": "PCM编码器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SourceCoding_PCMDecoding_Comm",
+  "componentName": "PCM译码器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "SourceCoding_PCMQuantiz_Comm",
+  "componentName": "PCM量化器",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Custom1",
+  "componentName": "单输入-单输出",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 1,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Custom2",
+  "componentName": "两输入-单输出",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 2,
+  "outputs": 1,
+  "params": {}
+ },
+ {
+  "className": "Custom3",
+  "componentName": "自定义信号源",
+  "deviceType": "PmsModel",
+  "courseType": "Communication",
+  "isLogic": true,
+  "inputs": 0,
+  "outputs": 1,
+  "params": {}
+ }
+]

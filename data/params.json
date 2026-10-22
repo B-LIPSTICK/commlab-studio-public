@@ -1,0 +1,1118 @@
+{
+ "BERCalculation_Biterr_Comm": {
+  "params": [
+   "datain1",
+   "datain2",
+   "depth"
+  ],
+  "desc": {
+   "datain1": "输入端口1：datain1为输入数据信号（发送）",
+   "datain2": "输入端口2：datain2为输入数据信号（接收）",
+   "depth": "(用户输入参数1) depth指定误码率计算时输入的两路数据的相对延迟数，默认值为0"
+  },
+  "defaults": {
+   "depth": "0"
+  }
+ },
+ "bin2deci": {
+  "params": [
+   "x"
+  ],
+  "desc": {},
+  "defaults": {}
+ },
+ "ChannalCoding_ConvDecode_Comm": {
+  "params": [
+   "Code",
+   "K",
+   "CodeGenerator"
+  ],
+  "desc": {
+   "Code": "（输入端口1）Code表示输入二进制数据信号",
+   "K": "（用户输入参数1）K为卷积码编码器的约束长度，默认值为7",
+   "CodeGenerator": "（用户输入参数2）CodeGenerator为卷积码编码器的八进制表示的码多项式向量，默认值为[171 133]"
+  },
+  "defaults": {
+   "K": "7"
+  }
+ },
+ "ChannalCoding_ConvEncode_Comm": {
+  "params": [
+   "datain",
+   "K",
+   "CodeGenerator"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain表示输入二进制数据信号",
+   "K": "（用户输入参数1）K为卷积码编码器的约束长度，默认值为7",
+   "CodeGenerator": "（用户输入参数2）CodeGenerator为卷积码编码器的八进制表示的码多项式向量，默认值为[171 133]"
+  },
+  "defaults": {
+   "K": "7"
+  }
+ },
+ "ChannalCoding_HammingDecode_Comm": {
+  "params": [
+   "datain",
+   "n",
+   "k"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain表示输入二进制数据信号",
+   "n": "（输入端口1）datain表示输入二进制数据信号",
+   "k": "（用户输入参数2）k为汉明编码信息位的长度，默认值为4"
+  },
+  "defaults": {
+   "n": "7",
+   "k": "4"
+  }
+ },
+ "ChannalCoding_HammingEncode_Comm": {
+  "params": [
+   "datain",
+   "n",
+   "k"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain表示输入二进制数据信号",
+   "n": "（输入端口1）datain表示输入二进制数据信号",
+   "k": "注：输入数据长度必须为k的整数倍"
+  },
+  "defaults": {
+   "n": "7",
+   "k": "4"
+  }
+ },
+ "ComUse_Adder_Comm": {
+  "params": [
+   "S1",
+   "S2"
+  ],
+  "desc": {
+   "S1": "（输入端口1）S1为输入第一路数据信号",
+   "S2": "（输入端口2）S2为输入第二路数据信号"
+  },
+  "defaults": {}
+ },
+ "ComUse_AWGN_Comm": {
+  "params": [
+   "datain",
+   "db",
+   "nsymbol_bit"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "db": "（用户输入参数1）db表示AWGN信道的信噪比，默认值为15",
+   "nsymbol_bit": "（用户输入参数2）nsymbol_bit为信源比特的长度，默认值与信源默认值数据化为二进制数据的长度值相同，默认值取1000"
+  },
+  "defaults": {
+   "db": "15"
+  }
+ },
+ "ComUse_Delay_Comm": {
+  "params": [
+   "datain",
+   "delaytime"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入第一路数据信号",
+   "delaytime": "（用户输入参数1）delaytime表示信号所需延迟时间，与每个码元采样点数相关，默认值为64，该值表示若码元采样点数为64，则延迟一个码元"
+  },
+  "defaults": {
+   "delaytime": "64"
+  }
+ },
+ "ComUse_DownSample_Comm": {
+  "params": [
+   "datain",
+   "nsamp"
+  ],
+  "desc": {
+   "datain": "（输入端口）datain为输入数据信号",
+   "nsamp": "（用户输入参数1）nsamp表示对输入信号进行下采样的采样因子，默认值为16"
+  },
+  "defaults": {
+   "nsamp": "16"
+  }
+ },
+ "ComUse_Judge_Comm": {
+  "params": [
+   "datain",
+   "L"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入第一路数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "ComUse_Mod2_Comm": {
+  "params": [
+   "st1",
+   "st2",
+   "L"
+  ],
+  "desc": {
+   "st1": "（输入端口1）st1为输入第一路数据信号",
+   "st2": "（输入端口2）st2为输入第二路数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "ComUse_Multiplier_Comm": {
+  "params": [
+   "input1",
+   "input2"
+  ],
+  "desc": {},
+  "defaults": {}
+ },
+ "ComUse_OnePass_Comm": {
+  "params": [
+   "st1",
+   "st2",
+   "L"
+  ],
+  "desc": {
+   "st1": "（输入端口1）st1为输入第一路数据信号",
+   "st2": "（输入端口2）st2为输入第二路数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "ComUse_Rectifier_Comm": {
+  "params": [
+   "input"
+  ],
+  "desc": {
+   "input": "（输入端口1）input为输入数据信号"
+  },
+  "defaults": {}
+ },
+ "ComUse_Relay_Comm": {
+  "params": [
+   "datain",
+   "on",
+   "off",
+   "high",
+   "low"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain表示输入数据信号",
+   "on": "（用户输入参数1）on为高电平的截止点，默认值为0.5",
+   "off": "（用户输入参数2）off为低电平的截止点，默认值为0.49",
+   "high": "（用户输入参数3）high为输出的高电平值，默认值为1",
+   "low": "（用户输入参数4）low为输出的低电平值，默认值为0"
+  },
+  "defaults": {
+   "on": "0.5",
+   "off": "0.49",
+   "high": "1",
+   "low": "0"
+  }
+ },
+ "ComUse_Sample_Comm": {
+  "params": [
+   "datain",
+   "freq",
+   "t"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入第一路数据信号",
+   "t": "（输入端口1）datain为输入第一路数据信号",
+   "freq": "（用户输入参数1）freq表示对输入信号进行采样的采样频率，默认值为64"
+  },
+  "defaults": {
+   "freq": "64",
+   "t": "1"
+  }
+ },
+ "ComUse_Select_Comm": {
+  "params": [
+   "datain",
+   "row"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "row": "（用户输入参数1）row指定输入并行信号要选通的行数，默认为1"
+  },
+  "defaults": {
+   "row": "1"
+  }
+ },
+ "ComUse_Subtractor_Comm": {
+  "params": [
+   "S1",
+   "S2"
+  ],
+  "desc": {
+   "S1": "（输入端口1）S1为输入第一路数据信号",
+   "S2": "（输入端口2）S2为输入第二路数据信号"
+  },
+  "defaults": {}
+ },
+ "ComUse_ZeroPass_Comm": {
+  "params": [
+   "st1",
+   "st2",
+   "L"
+  ],
+  "desc": {
+   "st1": "（输入端口1）st1为输入第一路数据信号",
+   "st2": "（输入端口2）st2为输入第二路数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "deci2bin": {
+  "params": [
+   "x",
+   "l"
+  ],
+  "desc": {},
+  "defaults": {}
+ },
+ "deci8bin": {
+  "params": [
+   "datain"
+  ],
+  "desc": {},
+  "defaults": {}
+ },
+ "Discriminator_EnvelopDetector_Comm": {
+  "params": [
+   "datain"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号"
+  },
+  "defaults": {}
+ },
+ "Discriminator_Freq_Comm": {
+  "params": [
+   "datain"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号"
+  },
+  "defaults": {}
+ },
+ "Draw_Distribution_Comm": {
+  "params": [
+   "datain"
+  ],
+  "desc": {
+   "datain": "输入端口：datain为输入数据信号"
+  },
+  "defaults": {}
+ },
+ "Draw_Plot_Comm": {
+  "params": [
+   "datain"
+  ],
+  "desc": {},
+  "defaults": {}
+ },
+ "Draw_PowerSpectrum_Comm": {
+  "params": [
+   "datain",
+   "L",
+   "displayoption"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64",
+   "displayoption": "（下拉框选择参数1）displayoption为显示模式，提供“common”、“dB”两种选项，默认值为“common”"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "Draw_ScatterPlot_Comm": {
+  "params": [
+   "Signal",
+   "num"
+  ],
+  "desc": {
+   "Signal": "（输入端口1）Signal表示输入信号",
+   "num": "（用户输入参数1）num指定绘制出的输入信号中的符号个数，默认值为100个"
+  },
+  "defaults": {
+   "num": "100"
+  }
+ },
+ "Draw_Stairs_Comm": {
+  "params": [
+   "datain"
+  ],
+  "desc": {
+   "datain": "输入端口：datain为输入数据信号"
+  },
+  "defaults": {}
+ },
+ "Draw_Stem_Comm": {
+  "params": [
+   "datain"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain=[x;n],其中x(datain的第一行)为采样序列，n（datain的第二行）为采样序列的取值范围"
+  },
+  "defaults": {}
+ },
+ "Filter_BEF_Comm": {
+  "params": [
+   "input",
+   "fp1",
+   "fp2",
+   "fs1",
+   "fs2",
+   "rp",
+   "rs",
+   "sample"
+  ],
+  "desc": {
+   "input": "（输入端口1）input为输入数据信号",
+   "fp1": "（用户输入参数1）fp1表示滤波器的通带截止频率的左边界，单位Hz，默认值为75",
+   "fp2": "（用户输入参数2）fp2表示滤波器的通带截止频率的右边界，单位Hz，默认值为200",
+   "fs1": "（用户输入参数3）fs1表示滤波器的阻带截止频率的左边界，单位Hz，默认值为100",
+   "fs2": "（用户输入参数4）fs2表示滤波器的阻带截止频率的右边界，单位Hz，默认值为175",
+   "rp": "（用户输入参数5）rp表示滤波器的通带衰减系数，单位dB，默认值为0.1",
+   "rs": "（用户输入参数6）rs表示滤波器的阻带衰减系数，单位dB，默认值为20",
+   "sample": "（用户输入参数7）sample表示输入信号的采样频率，单位Hz，默认值为600"
+  },
+  "defaults": {
+   "fp1": "75",
+   "fp2": "200",
+   "fs1": "100",
+   "fs2": "175",
+   "rp": "0.1",
+   "rs": "20",
+   "sample": "600"
+  }
+ },
+ "Filter_BPF_Comm": {
+  "params": [
+   "input",
+   "fp1",
+   "fp2",
+   "fs1",
+   "fs2",
+   "rp",
+   "rs",
+   "sample"
+  ],
+  "desc": {
+   "input": "（输入端口1）input为输入数据信号",
+   "fp1": "（用户输入参数1）fp1表示滤波器的通带截止频率的左边界，单位Hz，默认值为30",
+   "fp2": "（用户输入参数2）fp2表示滤波器的通带截止频率的右边界，单位Hz，默认值为70",
+   "fs1": "（用户输入参数3）fs1表示滤波器的阻带截止频率的左边界，单位Hz，默认值为15",
+   "fs2": "（用户输入参数4）fs2表示滤波器的阻带截止频率的右边界，单位Hz，默认值为90",
+   "rp": "（用户输入参数5）rp表示滤波器的通带衰减系数，单位dB，默认值为0.1",
+   "rs": "（用户输入参数6）rs表示滤波器的阻带衰减系数，单位dB，默认值为20",
+   "sample": "（用户输入参数7）sample表示输入信号的采样频率，单位Hz，默认值为600"
+  },
+  "defaults": {
+   "fp1": "30",
+   "fp2": "70",
+   "fs1": "15",
+   "fs2": "90",
+   "rp": "0.1",
+   "rs": "20",
+   "sample": "600"
+  }
+ },
+ "Filter_HPF_Comm": {
+  "params": [
+   "input",
+   "fp",
+   "fs",
+   "sample"
+  ],
+  "desc": {
+   "input": "（输入端口1）input为输入数据信号",
+   "fp": "（用户输入参数1）fp表示滤波器的通带截止频率，单位Hz，默认值为180",
+   "fs": "（用户输入参数2）fs表示滤波器的阻带截止频率，单位Hz，默认值为150",
+   "sample": "（用户输入参数3）sample表示输入信号的采样频率，单位Hz，默认值为600"
+  },
+  "defaults": {
+   "fp": "180",
+   "fs": "150",
+   "sample": "600"
+  }
+ },
+ "Filter_LPF_Comm": {
+  "params": [
+   "input",
+   "fp",
+   "fs",
+   "sample"
+  ],
+  "desc": {
+   "input": "（输入端口1）input为输入数据信号",
+   "fp": "（用户输入参数1）fp表示滤波器的通带截止频率，单位Hz，默认值为30",
+   "fs": "（用户输入参数2）fs表示滤波器的阻带截止频率，单位Hz，默认值为70",
+   "sample": "（用户输入参数3）sample表示输入信号的采样频率，单位Hz，默认值为600"
+  },
+  "defaults": {
+   "fp": "30",
+   "fs": "70",
+   "sample": "600"
+  }
+ },
+ "fskdemod": {
+  "params": [
+   "y",
+   "M",
+   "freq_sep",
+   "nSamp",
+   "varargin"
+  ],
+  "desc": {
+   "y": "FSKDEMOD Frequency shift keying demodulation",
+   "M": "FSKDEMOD Frequency shift keying demodulation"
+  },
+  "defaults": {}
+ },
+ "fskmod": {
+  "params": [
+   "x",
+   "M",
+   "freq_sep",
+   "nSamp",
+   "varargin"
+  ],
+  "desc": {
+   "M": "FSKMOD Frequency shift keying modulation",
+   "x": "Y = FSKMOD(X,M,FREQ_SEP,NSAMP) outputs the complex envelope of the"
+  },
+  "defaults": {}
+ },
+ "LineCode_Ami_Comm": {
+  "params": [
+   "datain",
+   "L"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "LineCode_Cmi_Comm": {
+  "params": [
+   "datain",
+   "L"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "LineCode_Diff_Comm": {
+  "params": [
+   "datain",
+   "L"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "LineCode_Dnrz_Comm": {
+  "params": [
+   "datain",
+   "L"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "LineCode_Drz_Comm": {
+  "params": [
+   "datain",
+   "L"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "LineCode_Hdb3_Comm": {
+  "params": [
+   "datain",
+   "L"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "LineCode_Manchester_Comm": {
+  "params": [
+   "datain",
+   "L"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "LineCode_Snrz_Comm": {
+  "params": [
+   "st",
+   "A",
+   "sample"
+  ],
+  "desc": {
+   "A": "（用户输入参数1）A为码元信号幅度，默认为1",
+   "sample": "（用户输入参数2）sample为信号总采样点数2.^sample，默认为12"
+  },
+  "defaults": {
+   "A": "1",
+   "sample": "12"
+  }
+ },
+ "LineCode_Srz_Comm": {
+  "params": [
+   "datain",
+   "A",
+   "sample",
+   "tao"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "A": "（用户输入参数1）A为码元信号幅度，默认为1",
+   "sample": "（用户输入参数2）sample为信号总采样点数2.^sample，默认为12",
+   "tao": "（用户输入参数3）tao为码元宽度，默认为0.5"
+  },
+  "defaults": {
+   "A": "1",
+   "sample": "12",
+   "tao": "0.5"
+  }
+ },
+ "metric": {
+  "params": [
+   "x",
+   "y"
+  ],
+  "desc": {},
+  "defaults": {}
+ },
+ "Modulation_Freq_Comm": {
+  "params": [
+   "datain",
+   "A",
+   "carrier_freq",
+   "Kf",
+   "t",
+   "fs"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "t": "（输入端口1）datain为输入数据信号",
+   "A": "（用户输入参数1）A表示载波信号的最大幅度值，默认值为1",
+   "carrier_freq": "（用户输入参数2）carrier_freq表示载波信号的频率，单位为Hz，默认值为10",
+   "Kf": "（用户输入参数3）Kf表示调频指数，默认值为5",
+   "fs": "（用户输入参数5）fs表示载波信号的采样频率，单位为Hz，默认值为100"
+  },
+  "defaults": {
+   "A": "1",
+   "carrier_freq": "10",
+   "Kf": "5",
+   "t": "1",
+   "fs": "100"
+  }
+ },
+ "Modulation_FskDemod_Comm": {
+  "params": [
+   "datain",
+   "freq_sep",
+   "nsamp",
+   "Fs"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "freq_sep": "（用户输入参数1）freq_sep为FSK的频差，默认值为8",
+   "nsamp": "（用户输入参数2）nsamp为对输入数据信号每个符号进行上采样时的因子，默认值为8",
+   "Fs": "（用户输入参数3）Fs为输出信号采样频率，需满足（M-1）*freq_sep<=Fs，默认值为16"
+  },
+  "defaults": {
+   "freq_sep": "8",
+   "nsamp": "8",
+   "Fs": "16"
+  }
+ },
+ "Modulation_FskMod_Comm": {
+  "params": [
+   "datain",
+   "freq_sep",
+   "nsamp",
+   "Fs",
+   "phase_cont"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "freq_sep": "（用户输入参数1）freq_sep为FSK的频差，默认值为8",
+   "nsamp": "（用户输入参数2）nsamp为对输入数据信号每个符号进行上采样时的因子，默认值为8",
+   "Fs": "（用户输入参数3）Fs为输出信号采样频率，需满足（M-1）*freq_sep<=Fs，默认值为16",
+   "phase_cont": "（下拉框选择参数）phase_cont指定相位的连续性，有连续相位、不连续相位两种情况可供选择，默认值为“连续相位”"
+  },
+  "defaults": {
+   "freq_sep": "8",
+   "nsamp": "8",
+   "Fs": "16"
+  }
+ },
+ "Modulation_Phrase_Comm": {
+  "params": [
+   "datain",
+   "A",
+   "carrier_freq",
+   "Kp",
+   "t",
+   "fs"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号",
+   "t": "（输入端口1）datain为输入数据信号",
+   "A": "（用户输入参数1）A表示载波信号的最大幅度值，默认值为1",
+   "carrier_freq": "（用户输入参数2）carrier_freq表示载波信号的频率，单位为Hz，默认值为10",
+   "Kp": "（用户输入参数3）Kp表示调相指数，默认值为5",
+   "fs": "（用户输入参数5）fs表示载波信号的采样频率，单位为Hz，默认值为100"
+  },
+  "defaults": {
+   "A": "1",
+   "carrier_freq": "10",
+   "Kp": "5",
+   "t": "1",
+   "fs": "100"
+  }
+ },
+ "Modulation_PskDemod_Comm": {
+  "params": [
+   "datain",
+   "M_ary"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入的数据信号",
+   "M_ary": "（下拉框选择参数1）M_ary为调制的进制数，提供2、4、8、16、32、64进制共六种选项，默认值为2"
+  },
+  "defaults": {
+   "M_ary": "2"
+  }
+ },
+ "Modulation_PskMod_Comm": {
+  "params": [
+   "datain",
+   "M_ary"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入的数据信号",
+   "M_ary": "（下拉框选择参数1）M_ary为调制的进制数，提供2、4、8、16、32、64进制共六种选项，默认值为2"
+  },
+  "defaults": {
+   "M_ary": "2"
+  }
+ },
+ "Modulation_QamDemod_Comm": {
+  "params": [
+   "datain",
+   "M_ary"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为接收到的已调QAM数据信号",
+   "M_ary": "（下拉框选择参数1）M_ary为调制的进制数，提供4、8、16、32、64进制共五种选项，默认值为4"
+  },
+  "defaults": {
+   "M_ary": "4"
+  }
+ },
+ "Modulation_QamMod_Comm": {
+  "params": [
+   "datain",
+   "M_ary"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入的数据信号",
+   "M_ary": "（下拉框选择参数1）M_ary为调制的进制数，提供4、8、16、32、64进制共五种选项，默认值为4"
+  },
+  "defaults": {
+   "M_ary": "4"
+  }
+ },
+ "Multipath_Fading_Comm": {
+  "params": [
+   "datain",
+   "h"
+  ],
+  "desc": {
+   "datain": "（输入端口）datain为原始信号",
+   "h": "（用户输入参数）h为多径信道的冲激响应，默认值为h=[0.02 0.05 0.1 -0.2 1 -0.2 0.1 0.05 0.02];"
+  },
+  "defaults": {}
+ },
+ "Multipath_Zero_Comm": {
+  "params": [
+   "datain",
+   "h",
+   "N"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain表示多径衰落后的信号",
+   "h": "（用户输入参数1）h为多径信道的冲激响应，默认值为h=[0.02 0.05 0.1 -0.2 1 -0.2 0.1 0.05 0.02];",
+   "N": "（用户输入参数2）N表示均衡器的抽头数，默认值为5"
+  },
+  "defaults": {
+   "N": "5"
+  }
+ },
+ "nxt_stat": {
+  "params": [
+   "current_state",
+   "input",
+   "L",
+   "k"
+  ],
+  "desc": {},
+  "defaults": {}
+ },
+ "SigTransfer_Bi2toM_Comm": {
+  "params": [
+   "datain",
+   "M"
+  ],
+  "desc": {
+   "M": "2-M进制转换",
+   "datain": "（输入端口）datain表示输入二进制数据信号"
+  },
+  "defaults": {
+   "M": "4"
+  }
+ },
+ "SigTransfer_DeMto2_Comm": {
+  "params": [
+   "datain"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入M进制数据信号"
+  },
+  "defaults": {}
+ },
+ "SigTransfer_Fourto2_Comm": {
+  "params": [
+   "datain"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入4进制数据信号"
+  },
+  "defaults": {}
+ },
+ "SigTransfer_HexTransform_Comm": {
+  "params": [
+   "st",
+   "M"
+  ],
+  "desc": {
+   "M": "功能：根据配置参数对输入序列进制转换，有二进制转成sqrt(M)进制",
+   "st": "（输入端口）st为输入数据信号"
+  },
+  "defaults": {
+   "M": "16"
+  }
+ },
+ "SigTransfer_Hilbert_Comm": {
+  "params": [
+   "datain"
+  ],
+  "desc": {
+   "datain": "（输入端口1）datain为输入数据信号"
+  },
+  "defaults": {}
+ },
+ "SigTransfer_MultiJudge_Comm": {
+  "params": [
+   "st",
+   "L"
+  ],
+  "desc": {
+   "st": "（输入端口）st为输入数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "SigTransfer_ParalleData_Comm": {
+  "params": [
+   "datain",
+   "row"
+  ],
+  "desc": {
+   "datain": "（输入端口）datain为输入数据信号",
+   "row": "（用户输入参数1）row指定将输入串行信号转换为并行输出的行数，默认值为2"
+  },
+  "defaults": {
+   "row": "2"
+  }
+ },
+ "SigTransfer_PSTransform_Comm": {
+  "params": [
+   "st1",
+   "st2",
+   "L"
+  ],
+  "desc": {
+   "st1": "（输入端口1）st1为输入第一路数据信号",
+   "st2": "（输入端口2）st2为输入第二路数据信号",
+   "L": "（用户输入参数1）L表示输入信号每个码元的采样点数，该值等于总的采样点数除以序列个数，默认值为64"
+  },
+  "defaults": {
+   "L": "64"
+  }
+ },
+ "Sig_Extractor_SDR": {
+  "params": [
+   "datain",
+   "d"
+  ],
+  "desc": {
+   "d": "d为抽取倍数，只能取正整数"
+  },
+  "defaults": {}
+ },
+ "Sig_Interpol_SDR": {
+  "params": [
+   "datain",
+   "options",
+   "d"
+  ],
+  "desc": {
+   "options": "options为内插方式，‘addzero’为补零内插；‘addsame’为保持不变内插",
+   "d": "options为内插方式，‘addzero’为补零内插；‘addsame’为保持不变内插"
+  },
+  "defaults": {}
+ },
+ "SourceCoding_DeltaMCoding_Comm": {
+  "params": [
+   "datain1",
+   "datain2"
+  ],
+  "desc": {
+   "datain1": "(输入端口1)：datain1为增量调制的采样信号",
+   "datain2": "(输入端口2)：datain2为增量调制的预测信号"
+  },
+  "defaults": {}
+ },
+ "SourceCoding_DeltaMDecoding_Comm": {
+  "params": [
+   "datain",
+   "delta"
+  ],
+  "desc": {
+   "datain": "输入端口：datain为增量调制的编码信号",
+   "delta": "用户输入参数：delta表示增量调制的量化台阶，与产生预测信号时的delta数值一致，默认值为0.5"
+  },
+  "defaults": {
+   "delta": "0.5"
+  }
+ },
+ "SourceCoding_DeltaMPredict_Comm": {
+  "params": [
+   "datain",
+   "delta"
+  ],
+  "desc": {
+   "datain": "输入端口：datain为采样信号",
+   "delta": "（用户输入参数）：delta表示增量调制的量化台阶，默认值为0.5"
+  },
+  "defaults": {
+   "delta": "0.5"
+  }
+ },
+ "SourceCoding_PCMCoding_Comm": {
+  "params": [
+   "datain"
+  ],
+  "desc": {
+   "datain": "输入端口：datain为量化信号"
+  },
+  "defaults": {}
+ },
+ "SourceCoding_PCMDecoding_Comm": {
+  "params": [
+   "datain",
+   "A"
+  ],
+  "desc": {
+   "datain": "输入端口：datain为PCM编码信号",
+   "A": "用户输入参数：A表示原始输入信号的最大幅值"
+  },
+  "defaults": {}
+ },
+ "SourceCoding_PCMQuantiz_Comm": {
+  "params": [
+   "datain"
+  ],
+  "desc": {
+   "datain": "输入端口：datain为PCM采样信号"
+  },
+  "defaults": {}
+ },
+ "Source_Cos": {
+  "params": [
+   "a1",
+   "w1",
+   "fs",
+   "t1"
+  ],
+  "desc": {
+   "a1": "（用户输入参数1）a1表示信号的幅值倍数，默认值为1",
+   "w1": "（用户输入参数2）w1表示信号的频率，单位为Hz，默认值为5Hz（信号频率应小于采样频率的一半）",
+   "fs": "（用户输入参数3）fs表示信号的采样频率，单位为Hz，默认值为100Hz",
+   "t1": "（用户输入参数4）t1表示信号的时间范围(0到t1)，默认值为1"
+  },
+  "defaults": {
+   "a1": "1",
+   "w1": "5",
+   "fs": "100",
+   "t1": "1"
+  }
+ },
+ "Source_Cosin_Comm": {
+  "params": [
+   "A",
+   "freq",
+   "t",
+   "phase",
+   "fs"
+  ],
+  "desc": {
+   "A": "（用户输入参数1）A表示余弦信号的最大幅度值，默认值为1",
+   "freq": "（用户输入参数2）freq表示余弦信号的频率，单位为Hz，默认值为10",
+   "t": "（用户输入参数3）t表示余弦信号的终止时间，单位为s，默认值为1",
+   "phase": "（用户输入参数4）phase表示余弦信号的初始相位，单位为弧度，默认值为0",
+   "fs": "（用户输入参数5）fs表示余弦信号的采样频率，单位为Hz，默认值为100"
+  },
+  "defaults": {
+   "A": "1",
+   "freq": "10",
+   "t": "1",
+   "phase": "0",
+   "fs": "100"
+  }
+ },
+ "Source_DC_Comm": {
+  "params": [
+   "A",
+   "t",
+   "fs"
+  ],
+  "desc": {
+   "A": "（用户输入参数1）A表示直流信号幅度，默认值为1",
+   "t": "（用户输入参数2）t表示直流信号的终止时间，单位为s，默认值为1",
+   "fs": "（用户输入参数3）fs表示直流信号的采样频率，单位为Hz，默认值为100"
+  },
+  "defaults": {
+   "A": "1",
+   "t": "1",
+   "fs": "100"
+  }
+ },
+ "Source_Randi_Comm": {
+  "params": [
+   "Length"
+  ],
+  "desc": {
+   "Length": "（用户输入参数1）Length表示产生的M进制序列的长度（个数），默认值为256"
+  },
+  "defaults": {
+   "Length": "256"
+  }
+ },
+ "Source_Rectpuls_Comm": {
+  "params": [
+   "A",
+   "Tao",
+   "t",
+   "fs"
+  ],
+  "desc": {
+   "A": "（用户输入参数1）A表示单矩形脉冲信号的最大幅度值，默认值为1",
+   "Tao": "（用户输入参数2）Tao表示单矩形脉冲信号的脉冲宽度，默认值为0.5",
+   "t": "（用户输入参数3）t表示单矩形脉冲信号的终止时间，单位为s，默认值为1",
+   "fs": "（用户输入参数4）fs表示单矩形脉冲信号的采样频率，单位为Hz，默认值为100"
+  },
+  "defaults": {
+   "A": "1",
+   "Tao": "0.5",
+   "t": "1",
+   "fs": "100"
+  }
+ },
+ "Source_Sa_Comm": {
+  "params": [
+   "A",
+   "Sample",
+   "Ts",
+   "Tp"
+  ],
+  "desc": {
+   "A": "（用户输入参数1）A表示Sa函数的最大幅度值，默认值为1",
+   "Ts": "（用户输入参数3）Ts表示Sa函数的起始时间，单位为s，默认值为-1",
+   "Tp": "（用户输入参数4）Tp表示Sa函数的终止时间，单位为s，默认值为1"
+  },
+  "defaults": {
+   "A": "1",
+   "Ts": "-1",
+   "Tp": "1"
+  }
+ },
+ "viterbi_decoder": {
+  "params": [
+   "channel_output",
+   "L",
+   "G"
+  ],
+  "desc": {},
+  "defaults": {}
+ },
+ "viterbi_encoder": {
+  "params": [
+   "input",
+   "L",
+   "G"
+  ],
+  "desc": {},
+  "defaults": {}
+ }
+}

@@ -1,0 +1,59 @@
+% !TEX program = xelatex
+\usepackage[a4paper,left=3.17cm,right=3.17cm,top=2.54cm,bottom=2.54cm]{geometry}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\setmainfont{Times New Roman}
+\setCJKmainfont[AutoFakeBold=2]{SimSun}
+\usepackage{amsmath}
+\usepackage{unicode-math}
+\setmathfont{TeX Gyre Termes Math}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage{eso-pic}
+
+\DeclareCaptionFont{wuhao}{\fontsize{10.5pt}{14pt}\selectfont}
+\captionsetup{font=wuhao,labelfont=wuhao,labelsep=space,skip=6pt,hypcap=false}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0pt}
+\setstretch{1.5}
+\pagestyle{empty}
+\newcommand{\reportframe}{%
+  \AddToShipoutPictureFG{%
+    \begin{tikzpicture}[remember picture, overlay]
+      \draw[line width=0.75pt]
+        ([xshift=2.98cm,yshift=-2.54cm]current page.north west)
+        rectangle
+        ([xshift=-2.97cm,yshift=2.92cm]current page.south east);
+    \end{tikzpicture}%
+  }%
+}
+\renewcommand{\arraystretch}{1.25}
+\setlist{nosep,leftmargin=2em}
+
+\providecommand{\experimentnumber}{2}
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+\renewcommand{\thefigure}{\experimentnumber.\arabic{figure}}
+\renewcommand{\thetable}{\experimentnumber.\arabic{table}}
+\renewcommand{\theequation}{\experimentnumber.\arabic{equation}}
+
+\newcommand{\sectionheading}[1]{\par\noindent{\fontsize{14pt}{20pt}\selectfont #1\par}\vspace{3pt}}
+\newcommand{\sectionrule}{\par\noindent\hspace*{-0.19cm}\rule{\dimexpr\linewidth+0.38cm\relax}{0.6pt}\par}
+\newcommand{\coverlabelLong}[1]{\makebox[3.4cm][l]{\fontsize{15pt}{22pt}\selectfont #1}}
+\newcommand{\coverlabelShort}[1]{\makebox[3.4cm][s]{\fontsize{15pt}{22pt}\selectfont #1}}
+\newcommand{\coverfieldLong}[2]{\coverlabelLong{#1}\hspace{0.2cm}\underline{\makebox[6.6cm][c]{\fontsize{15pt}{22pt}\selectfont #2}}}
+\newcommand{\coverfieldShort}[2]{\coverlabelShort{#1}\hspace{0.2cm}\underline{\makebox[6.6cm][c]{\fontsize{15pt}{22pt}\selectfont #2}}}
+\newcommand{\coverblankShort}[1]{\coverlabelShort{#1}\hspace{0.2cm}\underline{\makebox[6.6cm][c]{\phantom{空}}}}
+\newcommand{\scoresline}{\textcolor{red}{\rule{7.6cm}{0.7pt}}}

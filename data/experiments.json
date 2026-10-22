@@ -1,0 +1,3779 @@
+{
+ "name": "CommLab Studio",
+ "version": "0.1.0",
+ "count": 38,
+ "experiments": [
+  {
+   "order": 1,
+   "expNo": "10",
+   "title": "实验十 曼彻斯特码",
+   "folder": "10曼彻斯特码",
+   "script": "data/scripts/main10.m",
+   "markdown": "data/experiments/01_10曼彻斯特码.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "曼彻斯特码",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Randi_Comm",
+     "args": "4",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "A,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "LineCode_Manchester_Comm",
+     "args": "B,64",
+     "devName": "曼彻斯特码"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot_Comm",
+     "args": "B",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot_Comm",
+     "args": "C",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum_Comm",
+     "args": "C,64,'dB'",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块二",
+   "moduleTitle": "码型编码",
+   "chapters": "第五章"
+  },
+  {
+   "order": 2,
+   "expNo": "9",
+   "title": "实验九 三阶高密度双极性码（HDB3）",
+   "folder": "09三阶高密度双极性码（HDB3）",
+   "script": "data/scripts/main9.m",
+   "markdown": "data/experiments/02_09三阶高密度双极性码（HDB3）.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "三阶高密度双极性码（HDB3）",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "LineCode_Hdb3",
+     "args": "B,64",
+     "devName": "三阶高密度双极性码（HDB3）"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "C,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "C,64,'dB',12,9.6",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块二",
+   "moduleTitle": "码型编码",
+   "chapters": "第五章"
+  },
+  {
+   "order": 3,
+   "expNo": "8",
+   "title": "实验八 信号反转码（CMI）",
+   "folder": "08信号反转码（CMI）",
+   "script": "data/scripts/main8.m",
+   "markdown": "data/experiments/03_08信号反转码（CMI）.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "信号反转码（CMI）",
+    "信号波形图"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "LineCode_Cmi",
+     "args": "B,64",
+     "devName": "信号反转码（CMI）"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "C",
+     "devName": "信号波形图"
+    }
+   ],
+   "module": "模块二",
+   "moduleTitle": "码型编码",
+   "chapters": "第五章"
+  },
+  {
+   "order": 4,
+   "expNo": "7",
+   "title": "实验七 信号交替反转码（AMI）",
+   "folder": "07信号交替反转码（AMI）",
+   "script": "data/scripts/main7.m",
+   "markdown": "data/experiments/04_07信号交替反转码（AMI）.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "信号交替反转码（AMI）",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "LineCode_Ami",
+     "args": "B,64",
+     "devName": "信号交替反转码（AMI）"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "C,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "C,64,'dB',12,9.6",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块二",
+   "moduleTitle": "码型编码",
+   "chapters": "第五章"
+  },
+  {
+   "order": 5,
+   "expNo": "6",
+   "title": "实验六 双极性归零码",
+   "folder": "06双极性归零码",
+   "script": "data/scripts/main6.m",
+   "markdown": "data/experiments/05_06双极性归零码.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "单极性归零码",
+    "双极性归零码",
+    "双极性不归零码",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "8",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,9",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "D",
+     "fn": "LineCode_Srz",
+     "args": "A,1,9,0.5",
+     "devName": "单极性归零码"
+    },
+    {
+     "var": "C",
+     "fn": "LineCode_Drz",
+     "args": "B,32",
+     "devName": "双极性归零码"
+    },
+    {
+     "var": "E",
+     "fn": "LineCode_Dnrz",
+     "args": "B,32",
+     "devName": "双极性不归零码"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "C,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "D,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "E,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "C,32,'dB',12,9.6",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块二",
+   "moduleTitle": "码型编码",
+   "chapters": "第五章"
+  },
+  {
+   "order": 6,
+   "expNo": "5",
+   "title": "实验五 双极性不归零码",
+   "folder": "05双极性不归零码",
+   "script": "data/scripts/main5.m",
+   "markdown": "data/experiments/06_05双极性不归零码.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "双极性不归零码",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,9",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "LineCode_Dnrz",
+     "args": "B,32",
+     "devName": "双极性不归零码"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "C,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "C,32,'dB',12,9.6",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块二",
+   "moduleTitle": "码型编码",
+   "chapters": "第五章"
+  },
+  {
+   "order": 7,
+   "expNo": "4",
+   "title": "实验四 单极性归零码",
+   "folder": "04单极性归零码",
+   "script": "data/scripts/main4.m",
+   "markdown": "data/experiments/07_04单极性归零码.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性归零码",
+    "单极性不归零码",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Srz",
+     "args": "A,1,9,0.5",
+     "devName": "单极性归零码"
+    },
+    {
+     "var": "C",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,9",
+     "devName": "单极性不归零码"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "C,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "B,32,'dB',12,9.6",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块二",
+   "moduleTitle": "码型编码",
+   "chapters": "第五章"
+  },
+  {
+   "order": 8,
+   "expNo": "3",
+   "title": "实验三 单极性不归零码",
+   "folder": "03单极性不归零码",
+   "script": "data/scripts/main3.m",
+   "markdown": "data/experiments/08_03单极性不归零码.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,9",
+     "devName": "单极性不归零码"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "B,32,'dB',12,9.6",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块二",
+   "moduleTitle": "码型编码",
+   "chapters": "第五章"
+  },
+  {
+   "order": 9,
+   "expNo": "2",
+   "title": "实验二 矩形脉冲的能量谱密度",
+   "folder": "02矩形脉冲的能量谱密度",
+   "script": "data/scripts/main2.m",
+   "markdown": "data/experiments/09_02矩形脉冲的能量谱密度.md",
+   "devices": [
+    "矩形脉冲源",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Rectpuls",
+     "args": "1,0.8,1,64",
+     "devName": "矩形脉冲源"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "A",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "A,64,'dB'",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块一",
+   "moduleTitle": "信号时频分析",
+   "chapters": "第二、三章"
+  },
+  {
+   "order": 10,
+   "expNo": "22",
+   "title": "实验二十二 十六进制正交幅度调制（16QAM）及在AWGN信道下的传输性能-2",
+   "folder": "22十六进制正交幅度调制（16QAM）-2",
+   "script": "data/scripts/main22_2.m",
+   "markdown": "data/experiments/10_22十六进制正交幅度调制（16QAM）-2.md",
+   "devices": [
+    "随机序列码产生器",
+    "串并变换器",
+    "信号选通器",
+    "2-4电平变换器",
+    "单极性不归零码",
+    "余弦信号源",
+    "乘法器",
+    "加法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "4-2判决器",
+    "并串变换器",
+    "信号抽取器（降采样）",
+    "误码率计算（比特）"
+   ],
+   "chain": [
+    {
+     "var": "A1",
+     "fn": "Source_Randi",
+     "args": "4096",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B1",
+     "fn": "SigTransfer_ParalleData",
+     "args": "A1,2",
+     "devName": "串并变换器"
+    },
+    {
+     "var": "C1",
+     "fn": "ComUse_Select",
+     "args": "B1,1",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D1",
+     "fn": "SigTransfer_HexTransform",
+     "args": "C1,16",
+     "devName": "2-4电平变换器"
+    },
+    {
+     "var": "E1",
+     "fn": "LineCode_Snrz",
+     "args": "D1,1,18",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "F1",
+     "fn": "Source_Cosin",
+     "args": "1,24,4096,0,16",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G1",
+     "fn": "ComUse_Multiplier",
+     "args": "E1,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "C2",
+     "fn": "ComUse_Select",
+     "args": "B1,2",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D2",
+     "fn": "SigTransfer_HexTransform",
+     "args": "C2,16",
+     "devName": "2-4电平变换器"
+    },
+    {
+     "var": "E2",
+     "fn": "LineCode_Snrz",
+     "args": "D2,1,18",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "F2",
+     "fn": "Source_Cosin",
+     "args": "1,24,4096,1.57,16",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G2",
+     "fn": "ComUse_Multiplier",
+     "args": "E2,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Adder",
+     "args": "G1,G2",
+     "devName": "加法器"
+    },
+    {
+     "var": "I",
+     "fn": "ComUse_AWGN",
+     "args": "H,12,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "J1",
+     "fn": "ComUse_Multiplier",
+     "args": "I,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "J2",
+     "fn": "ComUse_Multiplier",
+     "args": "I,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "K1",
+     "fn": "Filter_LPF",
+     "args": "J1,10,20,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "K2",
+     "fn": "Filter_LPF",
+     "args": "J2,10,20,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "L1",
+     "fn": "SigTransfer_MultiJudge",
+     "args": "K1,64",
+     "devName": "4-2判决器"
+    },
+    {
+     "var": "L2",
+     "fn": "SigTransfer_MultiJudge",
+     "args": "K2,64",
+     "devName": "4-2判决器"
+    },
+    {
+     "var": "M",
+     "fn": "SigTransfer_PSTransform",
+     "args": "L1,L2,32",
+     "devName": "并串变换器"
+    },
+    {
+     "var": "N",
+     "fn": "ComUse_DownSample",
+     "args": "M,16",
+     "devName": "信号抽取器（降采样）"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "BERCalculation_Biterr",
+     "args": "A1,N,0",
+     "devName": "误码率计算（比特）"
+    }
+   ],
+   "module": "模块五",
+   "moduleTitle": "新型数字调制",
+   "chapters": "第八章",
+   "simulation": {
+    "timeoutMs": 120000,
+    "retries": 1,
+    "backend": "auto",
+    "note": "16QAM native 走复数 QAM 基带链；Rainier 保留原 I/Q 载波链",
+    "nativeChain": [
+     {
+      "var": "A1",
+      "fn": "Source_Randi",
+      "args": "4096",
+      "devName": "随机序列码产生器"
+     },
+     {
+      "var": "B1",
+      "fn": "SigTransfer_Bi2toM",
+      "args": "A1,16",
+      "devName": "串并变换器"
+     },
+     {
+      "var": "C1",
+      "fn": "Modulation_QamMod",
+      "args": "B1,16",
+      "devName": "16QAM调制器"
+     },
+     {
+      "var": "D1",
+      "fn": "ComUse_AWGN",
+      "args": "C1,12,1024",
+      "devName": "高斯白噪声信道"
+     },
+     {
+      "var": "E1",
+      "fn": "Modulation_QamDemod",
+      "args": "D1,16",
+      "devName": "16QAM解调器"
+     },
+     {
+      "var": "N",
+      "fn": "SigTransfer_DeMto2",
+      "args": "E1",
+      "devName": "并串变换器"
+     }
+    ]
+   }
+  },
+  {
+   "order": 11,
+   "expNo": "21",
+   "title": "实验二十一 二进制移频键控（相位不连续的2FSK）及在AWGN信道下的传输性能-2",
+   "folder": "21二进制移频键控（相位不连续的2FSK）-2",
+   "script": "data/scripts/main21_2.m",
+   "markdown": "data/experiments/11_21二进制移频键控（相位不连续的2FSK）-2.md",
+   "devices": [
+    "随机序列码产生器",
+    "FSK调制器",
+    "高斯白噪声信道",
+    "FSK解调器",
+    "误码率计算（比特）"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "4096",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "Modulation_FskMod",
+     "args": "A,16,64,64,'discont'",
+     "devName": "FSK调制器"
+    },
+    {
+     "var": "C",
+     "fn": "ComUse_AWGN",
+     "args": "B,6,16384",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "E",
+     "fn": "Modulation_FskDemod",
+     "args": "C,16,64,64",
+     "devName": "FSK解调器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "BERCalculation_Biterr",
+     "args": "A,E,0",
+     "devName": "误码率计算（比特）"
+    }
+   ],
+   "module": "模块四",
+   "moduleTitle": "数字调制",
+   "chapters": "第七章",
+   "simulation": {
+    "timeoutMs": 120000,
+    "retries": 1,
+    "backend": "auto",
+    "reducedBits": 4096,
+    "note": "16k->4k，2FSK 误码统计保留"
+   }
+  },
+  {
+   "order": 12,
+   "expNo": "20",
+   "title": "实验二十 二进制移频键控（相位连续的2FSK）及在AWGN信道下的传输性能-2",
+   "folder": "20二进制移频键控（相位连续的2FSK）-2",
+   "script": "data/scripts/main20_2.m",
+   "markdown": "data/experiments/12_20二进制移频键控（相位连续的2FSK）-2.md",
+   "devices": [
+    "随机序列码产生器",
+    "FSK调制器",
+    "高斯白噪声信道",
+    "FSK解调器",
+    "误码率计算（比特）"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "4096",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "Modulation_FskMod",
+     "args": "A,16,64,64,'cont'",
+     "devName": "FSK调制器"
+    },
+    {
+     "var": "C",
+     "fn": "ComUse_AWGN",
+     "args": "B,6,16384",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "E",
+     "fn": "Modulation_FskDemod",
+     "args": "C,16,64,64",
+     "devName": "FSK解调器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "BERCalculation_Biterr",
+     "args": "A,E,0",
+     "devName": "误码率计算（比特）"
+    }
+   ],
+   "module": "模块四",
+   "moduleTitle": "数字调制",
+   "chapters": "第七章",
+   "simulation": {
+    "timeoutMs": 120000,
+    "retries": 1,
+    "backend": "auto",
+    "reducedBits": 4096,
+    "note": "16k->4k，2FSK 误码统计保留"
+   }
+  },
+  {
+   "order": 13,
+   "expNo": "19",
+   "title": "实验十九 二进制差分移相键控（DPSK）及在AWGN信道下的传输性能-2",
+   "folder": "19二进制差分移相键控（DPSK）-2",
+   "script": "data/scripts/main19_2.m",
+   "markdown": "data/experiments/13_19二进制差分移相键控（DPSK）-2.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "差分码",
+    "双极性不归零码",
+    "余弦信号源",
+    "乘法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "判决器",
+    "延迟器",
+    "模二加",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "LineCode_Diff",
+     "args": "B,64",
+     "devName": "差分码"
+    },
+    {
+     "var": "D",
+     "fn": "LineCode_Dnrz",
+     "args": "C,64",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "E",
+     "fn": "Source_Cosin",
+     "args": "1,20,16,0,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "F",
+     "fn": "ComUse_Multiplier",
+     "args": "E,D",
+     "devName": "乘法器"
+    },
+    {
+     "var": "G",
+     "fn": "ComUse_AWGN",
+     "args": "F,50,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Multiplier",
+     "args": "E,G",
+     "devName": "乘法器"
+    },
+    {
+     "var": "I",
+     "fn": "Filter_LPF",
+     "args": "H,10,15,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "J",
+     "fn": "ComUse_Judge",
+     "args": "I,64",
+     "devName": "判决器"
+    },
+    {
+     "var": "K",
+     "fn": "ComUse_Delay",
+     "args": "J,64",
+     "devName": "延迟器"
+    },
+    {
+     "var": "L",
+     "fn": "ComUse_Mod2",
+     "args": "J,K,64",
+     "devName": "模二加"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "F,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "L,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "B,64,'dB',12,9.6",
+     "devName": "信号功率谱"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "F,64,'dB',12,9.6",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块四",
+   "moduleTitle": "数字调制",
+   "chapters": "第七章"
+  },
+  {
+   "order": 14,
+   "expNo": "18",
+   "title": "实验十八 二进制移相键控（BPSK）及在AWGN信道下的传输性能-2",
+   "folder": "18二进制移相键控（BPSK）-2",
+   "script": "data/scripts/main18_2.m",
+   "markdown": "data/experiments/14_18二进制移相键控（BPSK）-2.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "双极性不归零码",
+    "余弦信号源",
+    "乘法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "判决器",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "B2",
+     "fn": "LineCode_Dnrz",
+     "args": "B,64",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "Source_Cosin",
+     "args": "1,20,16,0,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "D",
+     "fn": "ComUse_Multiplier",
+     "args": "C,B2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "E",
+     "fn": "ComUse_AWGN",
+     "args": "D,50,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "F",
+     "fn": "ComUse_Multiplier",
+     "args": "E,C",
+     "devName": "乘法器"
+    },
+    {
+     "var": "G",
+     "fn": "Filter_LPF",
+     "args": "F,10,20,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Judge",
+     "args": "G,64",
+     "devName": "判决器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "D,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "H,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "B,64,'dB',12,9.6",
+     "devName": "信号功率谱"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "D,64,'dB',12,9.6",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块四",
+   "moduleTitle": "数字调制",
+   "chapters": "第七章"
+  },
+  {
+   "order": 15,
+   "expNo": "17",
+   "title": "实验十七 二进制通断键控（OOK）及在AWGN信道下的传输性能-2",
+   "folder": "17二进制通断键控（OOK）-2",
+   "script": "data/scripts/main17_2.m",
+   "markdown": "data/experiments/15_17二进制通断键控（OOK）-2.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "余弦信号源",
+    "乘法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "判决器",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "Source_Cosin",
+     "args": "1,20,16,0,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "D",
+     "fn": "ComUse_Multiplier",
+     "args": "B,C",
+     "devName": "乘法器"
+    },
+    {
+     "var": "E",
+     "fn": "ComUse_AWGN",
+     "args": "D,50,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "F",
+     "fn": "ComUse_Multiplier",
+     "args": "E,C",
+     "devName": "乘法器"
+    },
+    {
+     "var": "G",
+     "fn": "Filter_LPF",
+     "args": "F,10,20,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Judge",
+     "args": "G,64",
+     "devName": "判决器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "D",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "H",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "B,64,'dB'",
+     "devName": "信号功率谱"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "D,64,'dB'",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块四",
+   "moduleTitle": "数字调制",
+   "chapters": "第七章"
+  },
+  {
+   "order": 16,
+   "expNo": "16",
+   "title": "实验十六 调相（PM）",
+   "folder": "16调相（PM）",
+   "script": "data/scripts/main16.m",
+   "markdown": "data/experiments/16_16调相（PM）.md",
+   "devices": [
+    "余弦信号源",
+    "调相器",
+    "信号波形图",
+    "信号频谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Cosin",
+     "args": "1,20,0.2,0,1000",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "B",
+     "fn": "Modulation_Phrase",
+     "args": "A,1,200,10,0.2,1000",
+     "devName": "调相器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_SignalSpectrum",
+     "args": "B,1000",
+     "devName": "信号频谱"
+    }
+   ],
+   "module": "模块三",
+   "moduleTitle": "模拟调制",
+   "chapters": "第六章"
+  },
+  {
+   "order": 17,
+   "expNo": "15",
+   "title": "实验十五 调频（FM）",
+   "folder": "15调频（FM）",
+   "script": "data/scripts/main15.m",
+   "markdown": "data/experiments/17_15调频（FM）.md",
+   "devices": [
+    "余弦信号源",
+    "调频器",
+    "高斯白噪声信道",
+    "鉴频器",
+    "包络检波器",
+    "信号波形图",
+    "信号频谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Cosin",
+     "args": "1,20,0.2,0,1000",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "B",
+     "fn": "Modulation_Freq",
+     "args": "A,1,200,10,0.2,1000",
+     "devName": "调频器"
+    },
+    {
+     "var": "C",
+     "fn": "ComUse_AWGN",
+     "args": "B,50,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "D",
+     "fn": "Discriminator_Freq",
+     "args": "C",
+     "devName": "鉴频器"
+    },
+    {
+     "var": "E",
+     "fn": "Discriminator_EnvelopDetector",
+     "args": "D",
+     "devName": "包络检波器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "A",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "B",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "E",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_SignalSpectrum",
+     "args": "A,1000",
+     "devName": "信号频谱"
+    },
+    {
+     "fn": "Draw_SignalSpectrum",
+     "args": "B,1000",
+     "devName": "信号频谱"
+    }
+   ],
+   "module": "模块三",
+   "moduleTitle": "模拟调制",
+   "chapters": "第六章"
+  },
+  {
+   "order": 18,
+   "expNo": "14",
+   "title": "实验十四 单边带调幅的波形及频谱（SSB）",
+   "folder": "14单边带调幅的波形及频谱（SSB）",
+   "script": "data/scripts/main14.m",
+   "markdown": "data/experiments/18_14单边带调幅的波形及频谱（SSB）.md",
+   "devices": [
+    "余弦信号源",
+    "希尔伯特变换器",
+    "乘法器",
+    "加法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "信号波形图",
+    "信号频谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Cosin",
+     "args": "1,20,0.2,0,1000",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "B",
+     "fn": "SigTransfer_Hilbert",
+     "args": "A",
+     "devName": "希尔伯特变换器"
+    },
+    {
+     "var": "C",
+     "fn": "Source_Cosin",
+     "args": "1,400,0.2,-1.57,1000",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "D",
+     "fn": "ComUse_Multiplier",
+     "args": "B,C",
+     "devName": "乘法器"
+    },
+    {
+     "var": "E",
+     "fn": "Source_Cosin",
+     "args": "1,400,0.2,0,1000",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "F",
+     "fn": "ComUse_Multiplier",
+     "args": "A,E",
+     "devName": "乘法器"
+    },
+    {
+     "var": "G",
+     "fn": "ComUse_Adder",
+     "args": "D,F",
+     "devName": "加法器"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_AWGN",
+     "args": "G,30,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "I",
+     "fn": "ComUse_Multiplier",
+     "args": "H,E",
+     "devName": "乘法器"
+    },
+    {
+     "var": "J",
+     "fn": "Filter_LPF",
+     "args": "I,30,50,1000",
+     "devName": "低通滤波器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "A,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "G,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "J,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_SignalSpectrum",
+     "args": "A,1000,12,9.6",
+     "devName": "信号频谱"
+    },
+    {
+     "fn": "Draw_SignalSpectrum",
+     "args": "G,1000,12,9.6",
+     "devName": "信号频谱"
+    }
+   ],
+   "module": "模块三",
+   "moduleTitle": "模拟调制",
+   "chapters": "第六章"
+  },
+  {
+   "order": 19,
+   "expNo": "13",
+   "title": "实验十三 双边带抑制载波调幅（DSB-SC）",
+   "folder": "13双边带抑制载波调幅（DSB-SC）",
+   "script": "data/scripts/main13.m",
+   "markdown": "data/experiments/19_13双边带抑制载波调幅（DSB-SC）.md",
+   "devices": [
+    "余弦信号源",
+    "乘法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "信号波形图",
+    "信号频谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Cosin",
+     "args": "1,40,0.2,0,1000",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "B",
+     "fn": "Source_Cosin",
+     "args": "1,400,0.2,0,1000",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "C",
+     "fn": "ComUse_Multiplier",
+     "args": "A,B",
+     "devName": "乘法器"
+    },
+    {
+     "var": "D",
+     "fn": "ComUse_AWGN",
+     "args": "C,30,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "E",
+     "fn": "ComUse_Multiplier",
+     "args": "D,B",
+     "devName": "乘法器"
+    },
+    {
+     "var": "G",
+     "fn": "Filter_LPF",
+     "args": "E,50,80,1000",
+     "devName": "低通滤波器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "A,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "C,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "G,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_SignalSpectrum",
+     "args": "A,1000,12,9.6",
+     "devName": "信号频谱"
+    },
+    {
+     "fn": "Draw_SignalSpectrum",
+     "args": "C,1000,12,9.6",
+     "devName": "信号频谱"
+    }
+   ],
+   "module": "模块三",
+   "moduleTitle": "模拟调制",
+   "chapters": "第六章"
+  },
+  {
+   "order": 20,
+   "expNo": "12",
+   "title": "实验十二 离散大载波双边带载波调幅（AM）",
+   "folder": "12离散大载波双边带载波调幅（AM）",
+   "script": "data/scripts/main12.m",
+   "markdown": "data/experiments/20_12离散大载波双边带载波调幅（AM）.md",
+   "devices": [
+    "余弦信号源",
+    "直流信号源",
+    "加法器",
+    "乘法器",
+    "整流器",
+    "低通滤波器",
+    "信号波形图",
+    "信号频谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Cosin",
+     "args": "1,20,0.5,0,1000",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "B",
+     "fn": "Source_DC",
+     "args": "2,0.5,1000",
+     "devName": "直流信号源"
+    },
+    {
+     "var": "C",
+     "fn": "ComUse_Adder",
+     "args": "A,B",
+     "devName": "加法器"
+    },
+    {
+     "var": "D",
+     "fn": "Source_Cosin",
+     "args": "1,400,0.5,0,1000",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "E",
+     "fn": "ComUse_Multiplier",
+     "args": "C,D",
+     "devName": "乘法器"
+    },
+    {
+     "var": "F",
+     "fn": "ComUse_Rectifier",
+     "args": "E",
+     "devName": "整流器"
+    },
+    {
+     "var": "G",
+     "fn": "Filter_LPF",
+     "args": "F,10,50,1000",
+     "devName": "低通滤波器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "A",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "E",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "G",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_SignalSpectrum",
+     "args": "A,1000",
+     "devName": "信号频谱"
+    },
+    {
+     "fn": "Draw_SignalSpectrum",
+     "args": "E,1000",
+     "devName": "信号频谱"
+    }
+   ],
+   "module": "模块三",
+   "moduleTitle": "模拟调制",
+   "chapters": "第六章"
+  },
+  {
+   "order": 21,
+   "expNo": "11",
+   "title": "实验十一 差分码",
+   "folder": "11差分码",
+   "script": "data/scripts/main11.m",
+   "markdown": "data/experiments/21_11差分码.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "差分码",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "LineCode_Diff",
+     "args": "B,64",
+     "devName": "差分码"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "C,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "C,64,'dB',12,9.6",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块二",
+   "moduleTitle": "码型编码",
+   "chapters": "第五章"
+  },
+  {
+   "order": 22,
+   "expNo": "23",
+   "title": "实验二十三 四相移相键控（QPSK）及在AWGN信道下的传输性能-2",
+   "folder": "23四相移相键控（QPSK）-2",
+   "script": "data/scripts/main23_2.m",
+   "markdown": "data/experiments/22_23四相移相键控（QPSK）-2.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "串并变换器",
+    "信号选通器",
+    "双极性不归零码",
+    "余弦信号源",
+    "乘法器",
+    "加法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "判决器",
+    "并串变换器",
+    "信号波形图"
+   ],
+   "chain": [
+    {
+     "var": "A1",
+     "fn": "Source_Randi_Comm",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "A0",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "A1,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "B1",
+     "fn": "SigTransfer_ParalleData_Comm",
+     "args": "A1,2",
+     "devName": "串并变换器"
+    },
+    {
+     "var": "C1",
+     "fn": "ComUse_Select_Comm",
+     "args": "B1,1",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D1",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "C1,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "E1",
+     "fn": "LineCode_Dnrz_Comm",
+     "args": "D1,128",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "F1",
+     "fn": "Source_Cosin_Comm",
+     "args": "1,10,16,0,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G1",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "E1,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "C2",
+     "fn": "ComUse_Select_Comm",
+     "args": "B1,2",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D2",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "C2,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "E2",
+     "fn": "LineCode_Dnrz_Comm",
+     "args": "D2,128",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "F2",
+     "fn": "Source_Cosin_Comm",
+     "args": "1,10,16,1.57,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G2",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "E2,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Adder_Comm",
+     "args": "G1,G2",
+     "devName": "加法器"
+    },
+    {
+     "var": "I",
+     "fn": "ComUse_AWGN_Comm",
+     "args": "H,6,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "J1",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "I,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "J2",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "I,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "K1",
+     "fn": "Filter_LPF_Comm",
+     "args": "J1,8,12,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "K2",
+     "fn": "Filter_LPF_Comm",
+     "args": "J2,8,12,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "L1",
+     "fn": "ComUse_Judge_Comm",
+     "args": "K1,128",
+     "devName": "判决器"
+    },
+    {
+     "var": "L2",
+     "fn": "ComUse_Judge_Comm",
+     "args": "K2,128",
+     "devName": "判决器"
+    },
+    {
+     "var": "M",
+     "fn": "SigTransfer_PSTransform_Comm",
+     "args": "L1,L2,128",
+     "devName": "并串变换器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot_Comm",
+     "args": "A0",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot_Comm",
+     "args": "M",
+     "devName": "信号波形图"
+    }
+   ],
+   "module": "模块五",
+   "moduleTitle": "新型数字调制",
+   "chapters": "第八章",
+   "simulation": {
+    "timeoutMs": 90000,
+    "retries": 1,
+    "backend": "auto"
+   }
+  },
+  {
+   "order": 23,
+   "expNo": "24",
+   "title": "实验二十四 差分四相移相键控（DQPSK）",
+   "folder": "24差分四相移相键控（DQPSK）",
+   "script": "data/scripts/main24.m",
+   "markdown": "data/experiments/23_24差分四相移相键控（DQPSK）.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "串并变换器",
+    "信号选通器",
+    "差分码",
+    "双极性不归零码",
+    "余弦信号源",
+    "乘法器",
+    "加法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "判决器",
+    "延迟器",
+    "模二加",
+    "并串变换器",
+    "信号波形图"
+   ],
+   "chain": [
+    {
+     "var": "A1",
+     "fn": "Source_Randi_Comm",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "A0",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "A1,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "B1",
+     "fn": "SigTransfer_ParalleData_Comm",
+     "args": "A1,2",
+     "devName": "串并变换器"
+    },
+    {
+     "var": "C1",
+     "fn": "ComUse_Select_Comm",
+     "args": "B1,1",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D1",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "C1,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "D10",
+     "fn": "LineCode_Diff_Comm",
+     "args": "D1,128",
+     "devName": "差分码"
+    },
+    {
+     "var": "E1",
+     "fn": "LineCode_Dnrz_Comm",
+     "args": "D10,128",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "F1",
+     "fn": "Source_Cosin_Comm",
+     "args": "1,10,16,0,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G1",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "E1,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "C2",
+     "fn": "ComUse_Select_Comm",
+     "args": "B1,2",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D2",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "C2,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "D20",
+     "fn": "LineCode_Diff_Comm",
+     "args": "D2,128",
+     "devName": "差分码"
+    },
+    {
+     "var": "E2",
+     "fn": "LineCode_Dnrz_Comm",
+     "args": "D20,128",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "F2",
+     "fn": "Source_Cosin_Comm",
+     "args": "1,10,16,1.57,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G2",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "E2,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Adder_Comm",
+     "args": "G1,G2",
+     "devName": "加法器"
+    },
+    {
+     "var": "I",
+     "fn": "ComUse_AWGN_Comm",
+     "args": "H,50,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "J1",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "I,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "J2",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "I,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "K1",
+     "fn": "Filter_LPF_Comm",
+     "args": "J1,8,12,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "K2",
+     "fn": "Filter_LPF_Comm",
+     "args": "J2,8,12,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "L1",
+     "fn": "ComUse_Judge_Comm",
+     "args": "K1,128",
+     "devName": "判决器"
+    },
+    {
+     "var": "L2",
+     "fn": "ComUse_Judge_Comm",
+     "args": "K2,128",
+     "devName": "判决器"
+    },
+    {
+     "var": "M1",
+     "fn": "ComUse_Delay_Comm",
+     "args": "L1,128",
+     "devName": "延迟器"
+    },
+    {
+     "var": "M2",
+     "fn": "ComUse_Delay_Comm",
+     "args": "L2,128",
+     "devName": "延迟器"
+    },
+    {
+     "var": "N1",
+     "fn": "ComUse_Mod2_Comm",
+     "args": "L1,M1,128",
+     "devName": "模二加"
+    },
+    {
+     "var": "N2",
+     "fn": "ComUse_Mod2_Comm",
+     "args": "L2,M2,128",
+     "devName": "模二加"
+    },
+    {
+     "var": "O",
+     "fn": "SigTransfer_PSTransform_Comm",
+     "args": "N1,N2,128",
+     "devName": "并串变换器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot_Comm",
+     "args": "A0",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot_Comm",
+     "args": "O",
+     "devName": "信号波形图"
+    }
+   ],
+   "module": "模块五",
+   "moduleTitle": "新型数字调制",
+   "chapters": "第八章"
+  },
+  {
+   "order": 24,
+   "expNo": "25",
+   "title": "实验二十五 偏移四相移相键控（OQPSK）",
+   "folder": "25偏移四相移相键控（OQPSK）",
+   "script": "data/scripts/main25.m",
+   "markdown": "data/experiments/24_25偏移四相移相键控（OQPSK）.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "串并变换器",
+    "信号选通器",
+    "双极性不归零码",
+    "余弦信号源",
+    "乘法器",
+    "延迟器",
+    "加法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "判决器",
+    "并串变换器",
+    "信号波形图"
+   ],
+   "chain": [
+    {
+     "var": "A1",
+     "fn": "Sourse_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "A0",
+     "fn": "LineCode_Snrz",
+     "args": "A1,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "B1",
+     "fn": "SigTransfer_ParalleData",
+     "args": "A1,2",
+     "devName": "串并变换器"
+    },
+    {
+     "var": "C1",
+     "fn": "ComUse_Select",
+     "args": "B1,1",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D1",
+     "fn": "LineCode_Snrz",
+     "args": "C1,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "E1",
+     "fn": "LineCode_Dnrz",
+     "args": "D1,128",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "F1",
+     "fn": "Source_Cosin",
+     "args": "1,10,16,0,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G1",
+     "fn": "ComUse_Multiplier",
+     "args": "E1,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "C2",
+     "fn": "ComUse_Select",
+     "args": "B1,2",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D2",
+     "fn": "LineCode_Snrz",
+     "args": "C2,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "D20",
+     "fn": "ComUse_Delay",
+     "args": "D2,64",
+     "devName": "延迟器"
+    },
+    {
+     "var": "E2",
+     "fn": "LineCode_Dnrz",
+     "args": "D20,128",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "F2",
+     "fn": "Source_Cosin",
+     "args": "1,10,16,1.57,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G2",
+     "fn": "ComUse_Multiplier",
+     "args": "E2,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Adder",
+     "args": "G1,G2",
+     "devName": "加法器"
+    },
+    {
+     "var": "I",
+     "fn": "ComUse_AWGN",
+     "args": "H,50,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "J1",
+     "fn": "ComUse_Multiplier",
+     "args": "I,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "J2",
+     "fn": "ComUse_Multiplier",
+     "args": "I,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "K1",
+     "fn": "Filter_LPF",
+     "args": "J1,8,12,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "K2",
+     "fn": "Filter_LPF",
+     "args": "J2,8,12,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "L1",
+     "fn": "ComUse_Delay",
+     "args": "K1,64",
+     "devName": "延迟器"
+    },
+    {
+     "var": "M1",
+     "fn": "ComUse_Judge",
+     "args": "L1,128",
+     "devName": "判决器"
+    },
+    {
+     "var": "M2",
+     "fn": "ComUse_Judge",
+     "args": "K2,128",
+     "devName": "判决器"
+    },
+    {
+     "var": "O",
+     "fn": "SigTransfer_PSTransform",
+     "args": "M1,M2,128",
+     "devName": "并串变换器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "A0,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "O,'b',30,8",
+     "devName": "信号波形图"
+    }
+   ],
+   "module": "模块五",
+   "moduleTitle": "新型数字调制",
+   "chapters": "第八章"
+  },
+  {
+   "order": 25,
+   "expNo": "26",
+   "title": "实验二十六 脉冲编码调制（PCM）",
+   "folder": "26脉冲编码调制（PCM）",
+   "script": "data/scripts/main26.m",
+   "markdown": "data/experiments/25_26脉冲编码调制（PCM）.md",
+   "devices": [
+    "余弦信号源",
+    "采样器",
+    "PCM量化器",
+    "PCM编码器",
+    "PCM译码器",
+    "信号波形图",
+    "离散序列图"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Cosin",
+     "args": "1,2,1,0,1000",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "B",
+     "fn": "ComUse_Sample",
+     "args": "A,20,1",
+     "devName": "ComUse_Sample"
+    },
+    {
+     "var": "C",
+     "fn": "SourceCoding_PCMQuantiz",
+     "args": "B",
+     "devName": "PCM量化器"
+    },
+    {
+     "var": "D",
+     "fn": "SourceCoding_PCMCoding",
+     "args": "C",
+     "devName": "PCM编码器"
+    },
+    {
+     "var": "E",
+     "fn": "SourceCoding_PCMDecoding",
+     "args": "D,1",
+     "devName": "PCM译码器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "A",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Stem",
+     "args": "B",
+     "devName": "Draw_Stem"
+    },
+    {
+     "fn": "Draw_Stem",
+     "args": "C",
+     "devName": "Draw_Stem"
+    },
+    {
+     "fn": "Draw_Stem",
+     "args": "D",
+     "devName": "Draw_Stem"
+    },
+    {
+     "fn": "Draw_Stem",
+     "args": "E",
+     "devName": "Draw_Stem"
+    }
+   ],
+   "module": "模块六",
+   "moduleTitle": "信源编码",
+   "chapters": "第十章"
+  },
+  {
+   "order": 26,
+   "expNo": "27",
+   "title": "实验二十七 增量调制（△M）",
+   "folder": "27增量调制（△M）",
+   "script": "data/scripts/main27.m",
+   "markdown": "data/experiments/26_27增量调制（△M）.md",
+   "devices": [
+    "余弦信号源",
+    "采样器",
+    "增量调制预测器",
+    "增量调制编码器",
+    "增量调制译码器",
+    "信号波形图",
+    "离散序列图",
+    "阶梯图"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Cosin",
+     "args": "1,2,1,0,1000",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "B",
+     "fn": "ComUse_Sample",
+     "args": "A,20,1",
+     "devName": "ComUse_Sample"
+    },
+    {
+     "var": "C",
+     "fn": "SourceCoding_DeltaMPredict",
+     "args": "B,0.5",
+     "devName": "增量调制预测器"
+    },
+    {
+     "var": "D",
+     "fn": "SourceCoding_DeltaMCoding",
+     "args": "B,C",
+     "devName": "增量调制编码器"
+    },
+    {
+     "var": "E",
+     "fn": "SourceCoding_DeltaMDecoding",
+     "args": "D,0.5",
+     "devName": "增量调制译码器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "A,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Stem",
+     "args": "B,'b',12,9.6",
+     "devName": "Draw_Stem"
+    },
+    {
+     "fn": "Draw_Stairs",
+     "args": "C,'g',12,9.6",
+     "devName": "Draw_Stairs"
+    },
+    {
+     "fn": "Draw_Stem",
+     "args": "D,'b',12,9.6",
+     "devName": "Draw_Stem"
+    },
+    {
+     "fn": "Draw_Stairs",
+     "args": "E,'g',12,9.6",
+     "devName": "Draw_Stairs"
+    }
+   ],
+   "module": "模块六",
+   "moduleTitle": "信源编码",
+   "chapters": "第十章"
+  },
+  {
+   "order": 27,
+   "expNo": "28",
+   "title": "实验二十八 （7,4）汉明编码及在AWGN信道下的纠错性能",
+   "folder": "28（7,4）汉明编码",
+   "script": "data/scripts/main28.m",
+   "markdown": "data/experiments/27_28（7,4）汉明编码.md",
+   "devices": [
+    "随机序列码产生器",
+    "汉明编码器",
+    "PSK调制器",
+    "高斯白噪声信道",
+    "PSK解调器",
+    "汉明译码器",
+    "误码率计算（比特）"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "16384",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "ChannalCoding_HammingEncode",
+     "args": "A,7,4",
+     "devName": "汉明编码器"
+    },
+    {
+     "var": "C",
+     "fn": "Modulation_PskMod",
+     "args": "B,2",
+     "devName": "PSK调制器"
+    },
+    {
+     "var": "D",
+     "fn": "ComUse_AWGN",
+     "args": "C,6,16384",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "D",
+     "fn": "Modulation_PskDemod",
+     "args": "D,2",
+     "devName": "PSK解调器"
+    },
+    {
+     "var": "E",
+     "fn": "ChannalCoding_HammingDecode",
+     "args": "D,7,4",
+     "devName": "汉明译码器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "BERCalculation_Biterr",
+     "args": "A,E,0",
+     "devName": "误码率计算（比特）"
+    }
+   ],
+   "module": "模块七",
+   "moduleTitle": "信道编码与译码",
+   "chapters": "第九、十一章",
+   "simulation": {
+    "timeoutMs": 90000,
+    "retries": 0,
+    "backend": "auto",
+    "note": "Hamming 16k 基线约 3s，保留统计精度"
+   }
+  },
+  {
+   "order": 28,
+   "expNo": "29",
+   "title": "实验二十九 （2,1,7）卷积码及在AWGN信道下的纠错性能",
+   "folder": "29（2,1,7）卷积码",
+   "script": "data/scripts/main29.m",
+   "markdown": "data/experiments/28_29（2,1,7）卷积码.md",
+   "devices": [
+    "随机序列码产生器",
+    "卷积编码器",
+    "PSK调制器",
+    "高斯白噪声信道",
+    "PSK解调器",
+    "卷积译码器",
+    "误码率计算（比特）"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Randi",
+     "args": "4096",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "ChannalCoding_ConvEncode",
+     "args": "A,7,[171 133]",
+     "devName": "卷积编码器"
+    },
+    {
+     "var": "C",
+     "fn": "Modulation_PskMod",
+     "args": "B,2",
+     "devName": "PSK调制器"
+    },
+    {
+     "var": "D",
+     "fn": "ComUse_AWGN",
+     "args": "C,3,16384",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "E",
+     "fn": "Modulation_PskDemod",
+     "args": "D,2",
+     "devName": "PSK解调器"
+    },
+    {
+     "var": "F",
+     "fn": "ChannalCoding_ConvDecode",
+     "args": "E,7,[171 133],6",
+     "devName": "卷积译码器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "BERCalculation_Biterr",
+     "args": "A,F,0",
+     "devName": "误码率计算（比特）"
+    }
+   ],
+   "module": "模块七",
+   "moduleTitle": "信道编码与译码",
+   "chapters": "第九、十一章",
+   "simulation": {
+    "timeoutMs": 180000,
+    "retries": 1,
+    "backend": "auto",
+    "reducedBits": 4096,
+    "note": "16k 在 Rainier 上 >300s；4k 保持卷积码纠错含义"
+   }
+  },
+  {
+   "order": 29,
+   "expNo": "30",
+   "title": "实验三十 线性均衡器-迫零算法",
+   "folder": "30线性均衡器-迫零算法",
+   "script": "data/scripts/main30.m",
+   "markdown": "data/experiments/29_30线性均衡器-迫零算法.md",
+   "devices": [
+    "随机序列码产生器",
+    "继电/限幅器",
+    "多径衰落信道",
+    "迫零均衡器",
+    "概率分布图",
+    "眼图"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Randi",
+     "args": "512",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "ComUse_Relay",
+     "args": "A,0.5,0.49,1,-1",
+     "devName": "ComUse_Relay"
+    },
+    {
+     "var": "C",
+     "fn": "Multipath_Fading",
+     "args": "B,[0.02,0.05,0.1,-0.2,1,-0.2,0.1,0.05,0.02]",
+     "devName": "多径衰落信道"
+    },
+    {
+     "var": "D",
+     "fn": "Multipath_Zero",
+     "args": "C,[0.02,0.05,0.1,-0.2,1,-0.2,0.1,0.05,0.02],5",
+     "devName": "迫零均衡器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Distribution",
+     "args": "C",
+     "devName": "概率分布图"
+    },
+    {
+     "fn": "Draw_Distribution",
+     "args": "D",
+     "devName": "概率分布图"
+    },
+    {
+     "fn": "Draw_EYEdiagram",
+     "args": "C,4",
+     "devName": "眼图"
+    },
+    {
+     "fn": "Draw_EYEdiagram",
+     "args": "D,4",
+     "devName": "眼图"
+    }
+   ],
+   "module": "模块二",
+   "moduleTitle": "码型编码",
+   "chapters": "第五章"
+  },
+  {
+   "order": 30,
+   "expNo": "31",
+   "title": "实验三十一 MPSK/MQAM信号的星座图",
+   "folder": "31MPSK-MQAM信号的星座图",
+   "script": "data/scripts/main31.m",
+   "markdown": "data/experiments/30_31MPSK-MQAM信号的星座图.md",
+   "devices": [
+    "随机序列码产生器",
+    "二进制到M进制变换器",
+    "PSK调制器",
+    "QAM调制器",
+    "星座图"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Randi",
+     "args": "2400",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "SigTransfer_Bi2toM",
+     "args": "A,16",
+     "devName": "二进制到M进制变换器"
+    },
+    {
+     "var": "C",
+     "fn": "Modulation_PskMod",
+     "args": "B,16",
+     "devName": "PSK调制器"
+    },
+    {
+     "var": "D",
+     "fn": "Modulation_QamMod",
+     "args": "B,16",
+     "devName": "QAM调制器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_ScatterPlot",
+     "args": "C,400",
+     "devName": "星座图"
+    },
+    {
+     "fn": "Draw_ScatterPlot",
+     "args": "D,400",
+     "devName": "星座图"
+    }
+   ],
+   "module": "模块五",
+   "moduleTitle": "新型数字调制",
+   "chapters": "第八章",
+   "simulation": {
+    "timeoutMs": 60000,
+    "retries": 1,
+    "backend": "auto",
+    "maxM": 16,
+    "note": "Rainier 安全降级 M=16；nativeChain 恢复平台 M=64",
+    "nativeChain": [
+     {
+      "var": "A",
+      "fn": "Source_Randi",
+      "args": "2400",
+      "devName": "随机序列码产生器"
+     },
+     {
+      "var": "B",
+      "fn": "SigTransfer_Bi2toM",
+      "args": "A,64",
+      "devName": "串并变换器"
+     },
+     {
+      "var": "C",
+      "fn": "Modulation_PskMod",
+      "args": "B,64",
+      "devName": "PSK调制器"
+     },
+     {
+      "var": "D",
+      "fn": "Modulation_QamMod",
+      "args": "B,64",
+      "devName": "QAM调制器"
+     }
+    ]
+   }
+  },
+  {
+   "order": 31,
+   "expNo": "17",
+   "title": "实验十七 二进制通断键控（OOK）及在AWGN信道下的传输性能-1",
+   "folder": "17二进制通断键控（OOK）-1",
+   "script": "data/scripts/main17_1.m",
+   "markdown": "data/experiments/31_17二进制通断键控（OOK）-1.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "余弦信号源",
+    "乘法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "判决器",
+    "信号抽取器（降采样）",
+    "误码率计算（比特）"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Randi_Comm",
+     "args": "4096",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "A,1,16",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "Source_Cosin_Comm",
+     "args": "1,24,4096,1.57,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "D",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "B,C",
+     "devName": "乘法器"
+    },
+    {
+     "var": "E",
+     "fn": "ComUse_AWGN_Comm",
+     "args": "D,8,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "F",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "E,C",
+     "devName": "乘法器"
+    },
+    {
+     "var": "G",
+     "fn": "Filter_LPF_Comm",
+     "args": "F,10,24,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Judge_Comm",
+     "args": "G,64",
+     "devName": "判决器"
+    },
+    {
+     "var": "I",
+     "fn": "ComUse_DownSample_Comm",
+     "args": "H,16",
+     "devName": "信号抽取器（降采样）"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "BERCalculation_Biterr_Comm",
+     "args": "A,I,0",
+     "devName": "误码率计算（比特）"
+    }
+   ],
+   "module": "模块四",
+   "moduleTitle": "数字调制",
+   "chapters": "第七章",
+   "simulation": {
+    "timeoutMs": 90000,
+    "retries": 1,
+    "backend": "auto",
+    "note": "nativeChain 对齐 16 样点/bit 与判决分块；Rainier 保留原链",
+    "nativeChain": [
+     {
+      "var": "A",
+      "fn": "Source_Randi_Comm",
+      "args": "4096",
+      "devName": "随机序列码产生器"
+     },
+     {
+      "var": "B",
+      "fn": "LineCode_Snrz_Comm",
+      "args": "A,1,16",
+      "devName": "单极性不归零码"
+     },
+     {
+      "var": "C",
+      "fn": "Source_Cosin_Comm",
+      "args": "1,24,1024,1.57,64",
+      "devName": "余弦信号源"
+     },
+     {
+      "var": "D",
+      "fn": "ComUse_Multiplier_Comm",
+      "args": "B,C",
+      "devName": "乘法器"
+     },
+     {
+      "var": "E",
+      "fn": "ComUse_AWGN_Comm",
+      "args": "D,8,1000",
+      "devName": "高斯白噪声信道"
+     },
+     {
+      "var": "F",
+      "fn": "ComUse_Multiplier_Comm",
+      "args": "E,C",
+      "devName": "乘法器"
+     },
+     {
+      "var": "G",
+      "fn": "Filter_LPF_Comm",
+      "args": "F,10,24,64",
+      "devName": "低通滤波器"
+     },
+     {
+      "var": "H",
+      "fn": "ComUse_Judge_Comm",
+      "args": "G,16",
+      "devName": "判决器"
+     },
+     {
+      "var": "I",
+      "fn": "ComUse_DownSample_Comm",
+      "args": "H,16",
+      "devName": "信号抽取器（降采样）"
+     }
+    ]
+   }
+  },
+  {
+   "order": 32,
+   "expNo": "18",
+   "title": "实验十八 二进制移相键控（BPSK）及在AWGN信道下的传输性能-1",
+   "folder": "18二进制移相键控（BPSK）-1",
+   "script": "data/scripts/main18_1.m",
+   "markdown": "data/experiments/32_18二进制移相键控（BPSK）-1.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "双极性不归零码",
+    "余弦信号源",
+    "乘法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "判决器",
+    "信号抽取器（降采样）",
+    "误码率计算（比特）"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Randi",
+     "args": "4096",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,18",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "B2",
+     "fn": "LineCode_Dnrz",
+     "args": "B,16",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "Source_Cosin",
+     "args": "1,16,4096,0,16",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "D",
+     "fn": "ComUse_Multiplier",
+     "args": "C,B2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "E",
+     "fn": "ComUse_AWGN",
+     "args": "D,0,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "F",
+     "fn": "ComUse_Multiplier",
+     "args": "E,C",
+     "devName": "乘法器"
+    },
+    {
+     "var": "G",
+     "fn": "Filter_LPF",
+     "args": "F,10,20,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Judge",
+     "args": "G,16",
+     "devName": "判决器"
+    },
+    {
+     "var": "I",
+     "fn": "ComUse_DownSample",
+     "args": "H,16",
+     "devName": "信号抽取器（降采样）"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "BERCalculation_Biterr",
+     "args": "A,I,0",
+     "devName": "误码率计算（比特）"
+    }
+   ],
+   "module": "模块四",
+   "moduleTitle": "数字调制",
+   "chapters": "第七章",
+   "simulation": {
+    "timeoutMs": 120000,
+    "retries": 1,
+    "backend": "auto",
+    "reducedBits": 4096,
+    "note": "16k->4k，BPSK 误码统计保留"
+   }
+  },
+  {
+   "order": 33,
+   "expNo": "19",
+   "title": "实验十九 二进制差分移相键控（DPSK）及在AWGN信道下的传输性能-1",
+   "folder": "19二进制差分移相键控（DPSK）-1",
+   "script": "data/scripts/main19_1.m",
+   "markdown": "data/experiments/33_19二进制差分移相键控（DPSK）-1.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "差分码",
+    "双极性不归零码",
+    "余弦信号源",
+    "乘法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "判决器",
+    "延迟器",
+    "模二加",
+    "信号抽取器（降采样）",
+    "误码率计算（比特）"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Randi_Comm",
+     "args": "4096",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "A,1,18",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "LineCode_Diff_Comm",
+     "args": "B,16",
+     "devName": "差分码"
+    },
+    {
+     "var": "D",
+     "fn": "LineCode_Dnrz_Comm",
+     "args": "C,16",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "E",
+     "fn": "Source_Cosin_Comm",
+     "args": "1,20,4096,0,16",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "F",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "E,D",
+     "devName": "乘法器"
+    },
+    {
+     "var": "G",
+     "fn": "ComUse_AWGN_Comm",
+     "args": "F,6,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "E,G",
+     "devName": "乘法器"
+    },
+    {
+     "var": "I",
+     "fn": "Filter_LPF_Comm",
+     "args": "H,10,18,64",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "J",
+     "fn": "ComUse_Judge_Comm",
+     "args": "I,16",
+     "devName": "判决器"
+    },
+    {
+     "var": "K",
+     "fn": "ComUse_Delay_Comm",
+     "args": "J,16",
+     "devName": "延迟器"
+    },
+    {
+     "var": "L",
+     "fn": "ComUse_Mod2_Comm",
+     "args": "J,K,16",
+     "devName": "模二加"
+    },
+    {
+     "var": "M",
+     "fn": "ComUse_DownSample_Comm",
+     "args": "L,16",
+     "devName": "信号抽取器（降采样）"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "BERCalculation_Biterr_Comm",
+     "args": "A,M,0",
+     "devName": "误码率计算（比特）"
+    }
+   ],
+   "module": "模块四",
+   "moduleTitle": "数字调制",
+   "chapters": "第七章",
+   "simulation": {
+    "timeoutMs": 120000,
+    "retries": 1,
+    "backend": "auto",
+    "reducedBits": 4096,
+    "note": "nativeChain 对齐差分编码 64 样点/bit 与载波时长；Rainier 保留原链",
+    "nativeChain": [
+     {
+      "var": "A",
+      "fn": "Source_Randi_Comm",
+      "args": "4096",
+      "devName": "随机序列码产生器"
+     },
+     {
+      "var": "B",
+      "fn": "LineCode_Snrz_Comm",
+      "args": "A,1,18",
+      "devName": "单极性不归零码"
+     },
+     {
+      "var": "C",
+      "fn": "LineCode_Diff_Comm",
+      "args": "B,64",
+      "devName": "差分码"
+     },
+     {
+      "var": "D",
+      "fn": "LineCode_Dnrz_Comm",
+      "args": "C,64",
+      "devName": "双极性不归零码"
+     },
+     {
+      "var": "E",
+      "fn": "Source_Cosin_Comm",
+      "args": "1,20,16384,0,16",
+      "devName": "余弦信号源"
+     },
+     {
+      "var": "F",
+      "fn": "ComUse_Multiplier_Comm",
+      "args": "E,D",
+      "devName": "乘法器"
+     },
+     {
+      "var": "G",
+      "fn": "ComUse_AWGN_Comm",
+      "args": "F,6,1000",
+      "devName": "高斯白噪声信道"
+     },
+     {
+      "var": "H",
+      "fn": "ComUse_Multiplier_Comm",
+      "args": "E,G",
+      "devName": "乘法器"
+     },
+     {
+      "var": "I",
+      "fn": "Filter_LPF_Comm",
+      "args": "H,10,18,64",
+      "devName": "低通滤波器"
+     },
+     {
+      "var": "J",
+      "fn": "ComUse_Judge_Comm",
+      "args": "I,64",
+      "devName": "判决器"
+     },
+     {
+      "var": "K",
+      "fn": "ComUse_Delay_Comm",
+      "args": "J,64",
+      "devName": "延迟器"
+     },
+     {
+      "var": "L",
+      "fn": "ComUse_Mod2_Comm",
+      "args": "J,K,64",
+      "devName": "模二加"
+     },
+     {
+      "var": "M",
+      "fn": "ComUse_DownSample_Comm",
+      "args": "L,64",
+      "devName": "信号抽取器（降采样）"
+     }
+    ]
+   }
+  },
+  {
+   "order": 34,
+   "expNo": "20",
+   "title": "实验二十 二进制移频键控（相位连续的2FSK）及在AWGN信道下的传输性能-1",
+   "folder": "20二进制移频键控（相位连续的2FSK）-1",
+   "script": "data/scripts/main20_1.m",
+   "markdown": "data/experiments/34_20二进制移频键控（相位连续的2FSK）-1.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "调频器",
+    "高斯白噪声信道",
+    "鉴频器",
+    "包络检波器",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Sourse_Randi",
+     "args": "16",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,9",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C",
+     "fn": "Modulation_Freq",
+     "args": "B,1,40,5,16,32",
+     "devName": "调频器"
+    },
+    {
+     "var": "E",
+     "fn": "ComUse_AWGN",
+     "args": "C,50,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "F",
+     "fn": "Discriminator_Freq",
+     "args": "E",
+     "devName": "鉴频器"
+    },
+    {
+     "var": "G",
+     "fn": "Discriminator_EnvelopDetector",
+     "args": "F",
+     "devName": "包络检波器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "B,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "C,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "G,'b',30,8",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "B,32,'dB',12,9.6",
+     "devName": "信号功率谱"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "C,32,'dB',12,9.6",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块四",
+   "moduleTitle": "数字调制",
+   "chapters": "第七章"
+  },
+  {
+   "order": 35,
+   "expNo": "21",
+   "title": "实验二十一 二进制移频键控（相位不连续的2FSK）及在AWGN信道下的传输性能-1",
+   "folder": "21二进制移频键控（相位不连续的2FSK）-1",
+   "script": "data/scripts/main21_1.m",
+   "markdown": "data/experiments/35_21二进制移频键控（相位不连续的2FSK）-1.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "余弦信号源",
+    "单极性判决",
+    "零判决",
+    "加法器",
+    "信号波形图",
+    "信号功率谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Randi",
+     "args": "8",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B",
+     "fn": "LineCode_Snrz",
+     "args": "A,1,9",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "C1",
+     "fn": "Source_Cosin",
+     "args": "1,20,8,0,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "C2",
+     "fn": "Source_Cosin",
+     "args": "1,5,8,0,64",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "D1",
+     "fn": "ComUse_OnePass",
+     "args": "B,C1,64",
+     "devName": "ComUse_OnePass"
+    },
+    {
+     "var": "D2",
+     "fn": "ComUse_ZeroPass",
+     "args": "B,C2,64",
+     "devName": "ComUse_ZeroPass"
+    },
+    {
+     "var": "E",
+     "fn": "ComUse_Adder",
+     "args": "D1,D2",
+     "devName": "加法器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "E",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot",
+     "args": "A",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_PowerSpectrum",
+     "args": "E,64,'dB'",
+     "devName": "信号功率谱"
+    }
+   ],
+   "module": "模块四",
+   "moduleTitle": "数字调制",
+   "chapters": "第七章"
+  },
+  {
+   "order": 36,
+   "expNo": "22",
+   "title": "实验二十二 十六进制正交幅度调制（16QAM）及在AWGN信道下的传输性能-1",
+   "folder": "22十六进制正交幅度调制（16QAM）-1",
+   "script": "data/scripts/main22_1.m",
+   "markdown": "data/experiments/36_22十六进制正交幅度调制（16QAM）-1.md",
+   "devices": [
+    "随机序列码产生器",
+    "单极性不归零码",
+    "信号波形图",
+    "串并变换器",
+    "信号选通器",
+    "2-4电平变换器",
+    "余弦信号源",
+    "乘法器",
+    "加法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "4-2判决器",
+    "并串变换器"
+   ],
+   "chain": [
+    {
+     "var": "A1",
+     "fn": "Source_Randi_Comm",
+     "args": "32",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "A0",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "A1,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "B1",
+     "fn": "SigTransfer_ParalleData_Comm",
+     "args": "A1,2",
+     "devName": "串并变换器"
+    },
+    {
+     "var": "C1",
+     "fn": "ComUse_Select_Comm",
+     "args": "B1,1",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D1",
+     "fn": "SigTransfer_HexTransform_Comm",
+     "args": "C1,16",
+     "devName": "2-4电平变换器"
+    },
+    {
+     "var": "E1",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "D1,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "F1",
+     "fn": "Source_Cosin_Comm",
+     "args": "1,10,32,0,32",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G1",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "E1,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "C2",
+     "fn": "ComUse_Select_Comm",
+     "args": "B1,2",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D2",
+     "fn": "SigTransfer_HexTransform_Comm",
+     "args": "C2,16",
+     "devName": "2-4电平变换器"
+    },
+    {
+     "var": "E2",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "D2,1,10",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "F2",
+     "fn": "Source_Cosin_Comm",
+     "args": "1,10,32,1.57,32",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G2",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "E2,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Adder_Comm",
+     "args": "G1,G2",
+     "devName": "加法器"
+    },
+    {
+     "var": "I",
+     "fn": "ComUse_AWGN_Comm",
+     "args": "H,50,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "J1",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "I,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "J2",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "I,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "K1",
+     "fn": "Filter_LPF_Comm",
+     "args": "J1,8,12,32",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "K2",
+     "fn": "Filter_LPF_Comm",
+     "args": "J2,8,12,32",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "L1",
+     "fn": "SigTransfer_MultiJudge_Comm",
+     "args": "K1,128",
+     "devName": "4-2判决器"
+    },
+    {
+     "var": "L2",
+     "fn": "SigTransfer_MultiJudge_Comm",
+     "args": "K2,128",
+     "devName": "4-2判决器"
+    },
+    {
+     "var": "M",
+     "fn": "SigTransfer_PSTransform_Comm",
+     "args": "L1,L2,64",
+     "devName": "并串变换器"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot_Comm",
+     "args": "A0",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_Plot_Comm",
+     "args": "M",
+     "devName": "信号波形图"
+    }
+   ],
+   "module": "模块五",
+   "moduleTitle": "新型数字调制",
+   "chapters": "第八章",
+   "simulation": {
+    "timeoutMs": 90000,
+    "retries": 1,
+    "backend": "auto"
+   }
+  },
+  {
+   "order": 37,
+   "expNo": "23",
+   "title": "实验二十三 四相移相键控（QPSK）及在AWGN信道下的传输性能-1",
+   "folder": "23四相移相键控（QPSK）-1",
+   "script": "data/scripts/main23_1.m",
+   "markdown": "data/experiments/37_23四相移相键控（QPSK）-1.md",
+   "devices": [
+    "随机序列码产生器",
+    "串并变换器",
+    "信号选通器",
+    "单极性不归零码",
+    "双极性不归零码",
+    "余弦信号源",
+    "乘法器",
+    "加法器",
+    "高斯白噪声信道",
+    "低通滤波器",
+    "判决器",
+    "并串变换器",
+    "信号抽取器（降采样）",
+    "误码率计算（比特）"
+   ],
+   "chain": [
+    {
+     "var": "A1",
+     "fn": "Source_Randi_Comm",
+     "args": "1024",
+     "devName": "随机序列码产生器"
+    },
+    {
+     "var": "B1",
+     "fn": "SigTransfer_ParalleData_Comm",
+     "args": "A1,2",
+     "devName": "串并变换器"
+    },
+    {
+     "var": "C1",
+     "fn": "ComUse_Select_Comm",
+     "args": "B1,1",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D1",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "C1,1,21",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "E1",
+     "fn": "LineCode_Dnrz_Comm",
+     "args": "D1,256",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "F1",
+     "fn": "Source_Cosin_Comm",
+     "args": "1,24,1024,0,128",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G1",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "E1,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "C2",
+     "fn": "ComUse_Select_Comm",
+     "args": "B1,2",
+     "devName": "信号选通器"
+    },
+    {
+     "var": "D2",
+     "fn": "LineCode_Snrz_Comm",
+     "args": "C2,1,21",
+     "devName": "单极性不归零码"
+    },
+    {
+     "var": "E2",
+     "fn": "LineCode_Dnrz_Comm",
+     "args": "D2,256",
+     "devName": "双极性不归零码"
+    },
+    {
+     "var": "F2",
+     "fn": "Source_Cosin_Comm",
+     "args": "1,24,1024,1.57,128",
+     "devName": "余弦信号源"
+    },
+    {
+     "var": "G2",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "E2,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "H",
+     "fn": "ComUse_Adder_Comm",
+     "args": "G1,G2",
+     "devName": "加法器"
+    },
+    {
+     "var": "I",
+     "fn": "ComUse_AWGN_Comm",
+     "args": "H,6,1000",
+     "devName": "高斯白噪声信道"
+    },
+    {
+     "var": "J1",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "I,F1",
+     "devName": "乘法器"
+    },
+    {
+     "var": "J2",
+     "fn": "ComUse_Multiplier_Comm",
+     "args": "I,F2",
+     "devName": "乘法器"
+    },
+    {
+     "var": "K1",
+     "fn": "Filter_LPF_Comm",
+     "args": "J1,12,20,128",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "K2",
+     "fn": "Filter_LPF_Comm",
+     "args": "J2,12,20,128",
+     "devName": "低通滤波器"
+    },
+    {
+     "var": "L1",
+     "fn": "ComUse_Judge_Comm",
+     "args": "K1,256",
+     "devName": "判决器"
+    },
+    {
+     "var": "L2",
+     "fn": "ComUse_Judge_Comm",
+     "args": "K2,256",
+     "devName": "判决器"
+    },
+    {
+     "var": "M",
+     "fn": "SigTransfer_PSTransform_Comm",
+     "args": "L1,L2,256",
+     "devName": "并串变换器"
+    },
+    {
+     "var": "N",
+     "fn": "ComUse_DownSample_Comm",
+     "args": "M,128",
+     "devName": "信号抽取器（降采样）"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "BERCalculation_Biterr_Comm",
+     "args": "A1,N,0",
+     "devName": "误码率计算（比特）"
+    }
+   ],
+   "module": "模块五",
+   "moduleTitle": "新型数字调制",
+   "chapters": "第八章",
+   "simulation": {
+    "timeoutMs": 180000,
+    "retries": 1,
+    "backend": "auto",
+    "reducedBits": 1024,
+    "note": "Rainier 安全降级 1024 bit；nativeChain 恢复平台 4096 bit",
+    "nativeChain": [
+     {
+      "var": "A1",
+      "fn": "Source_Randi_Comm",
+      "args": "4096",
+      "devName": "随机序列码产生器"
+     },
+     {
+      "var": "B1",
+      "fn": "SigTransfer_ParalleData_Comm",
+      "args": "A1,2",
+      "devName": "串并变换器"
+     },
+     {
+      "var": "C1",
+      "fn": "ComUse_Select_Comm",
+      "args": "B1,1",
+      "devName": "信号选通器"
+     },
+     {
+      "var": "D1",
+      "fn": "LineCode_Snrz_Comm",
+      "args": "C1,1,21",
+      "devName": "单极性不归零码"
+     },
+     {
+      "var": "E1",
+      "fn": "LineCode_Dnrz_Comm",
+      "args": "D1,256",
+      "devName": "双极性不归零码"
+     },
+     {
+      "var": "F1",
+      "fn": "Source_Cosin_Comm",
+      "args": "1,24,4096,0,128",
+      "devName": "余弦信号源"
+     },
+     {
+      "var": "G1",
+      "fn": "ComUse_Multiplier_Comm",
+      "args": "E1,F1",
+      "devName": "乘法器"
+     },
+     {
+      "var": "C2",
+      "fn": "ComUse_Select_Comm",
+      "args": "B1,2",
+      "devName": "信号选通器"
+     },
+     {
+      "var": "D2",
+      "fn": "LineCode_Snrz_Comm",
+      "args": "C2,1,21",
+      "devName": "单极性不归零码"
+     },
+     {
+      "var": "E2",
+      "fn": "LineCode_Dnrz_Comm",
+      "args": "D2,256",
+      "devName": "双极性不归零码"
+     },
+     {
+      "var": "F2",
+      "fn": "Source_Cosin_Comm",
+      "args": "1,24,4096,1.57,128",
+      "devName": "余弦信号源"
+     },
+     {
+      "var": "G2",
+      "fn": "ComUse_Multiplier_Comm",
+      "args": "E2,F2",
+      "devName": "乘法器"
+     },
+     {
+      "var": "H",
+      "fn": "ComUse_Adder_Comm",
+      "args": "G1,G2",
+      "devName": "加法器"
+     },
+     {
+      "var": "I",
+      "fn": "ComUse_AWGN_Comm",
+      "args": "H,6,1000",
+      "devName": "高斯白噪声信道"
+     },
+     {
+      "var": "J1",
+      "fn": "ComUse_Multiplier_Comm",
+      "args": "I,F1",
+      "devName": "乘法器"
+     },
+     {
+      "var": "J2",
+      "fn": "ComUse_Multiplier_Comm",
+      "args": "I,F2",
+      "devName": "乘法器"
+     },
+     {
+      "var": "K1",
+      "fn": "Filter_LPF_Comm",
+      "args": "J1,12,20,128",
+      "devName": "低通滤波器"
+     },
+     {
+      "var": "K2",
+      "fn": "Filter_LPF_Comm",
+      "args": "J2,12,20,128",
+      "devName": "低通滤波器"
+     },
+     {
+      "var": "L1",
+      "fn": "ComUse_Judge_Comm",
+      "args": "K1,256",
+      "devName": "判决器"
+     },
+     {
+      "var": "L2",
+      "fn": "ComUse_Judge_Comm",
+      "args": "K2,256",
+      "devName": "判决器"
+     },
+     {
+      "var": "M",
+      "fn": "SigTransfer_PSTransform_Comm",
+      "args": "L1,L2,256",
+      "devName": "并串变换器"
+     },
+     {
+      "var": "N",
+      "fn": "ComUse_DownSample_Comm",
+      "args": "M,128",
+      "devName": "信号抽取器（降采样）"
+     }
+    ]
+   }
+  },
+  {
+   "order": 38,
+   "expNo": "1",
+   "title": "实验一 余弦信号的波形及频谱",
+   "folder": "01余弦信号的波形及频谱",
+   "script": "data/scripts/main1.m",
+   "markdown": "data/experiments/38_01余弦信号的波形及频谱.md",
+   "devices": [
+    "余弦信号源",
+    "信号波形图",
+    "信号频谱"
+   ],
+   "chain": [
+    {
+     "var": "A",
+     "fn": "Source_Cosin",
+     "args": "1,10,1,0,100",
+     "devName": "余弦信号源"
+    }
+   ],
+   "observers": [
+    {
+     "fn": "Draw_Plot",
+     "args": "A",
+     "devName": "信号波形图"
+    },
+    {
+     "fn": "Draw_SignalSpectrum",
+     "args": "A,64",
+     "devName": "信号频谱"
+    }
+   ],
+   "module": "模块一",
+   "moduleTitle": "信号时频分析",
+   "chapters": "第二、三章"
+  }
+ ]
+}
