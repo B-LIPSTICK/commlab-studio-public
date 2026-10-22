@@ -13,6 +13,114 @@ let connectFrom = null;
 let hotPort = null;
 let view = { s: 1, x: 0, y: 0 };
 
+const WB_KEYS = {
+  dockHeight: "wb-dock-height",
+  dockLastHeight: "wb-dock-last-height",
+  dockTab: "wb-dock-tab",
+  palette: "wb-palette-collapsed",
+  inspector: "wb-inspector-collapsed",
+};
+
+const wbState = {
+  projectName: "未命名电路",
+  saveState: "dirty",
+  lastSavedPath: "",
+  results: [],
+  svgs: [],
+  metrics: [],
+  log: "",
+  backend: "",
+  status: "idle",
+  runStartedAt: 0,
+  firstImageMs: null,
+  firstImagePaintMs: null,
+  resultGeneration: 0,
+  idleHandle: 0,
+  dockHeight: 36,
+  lastDockHeight: 240,
+  activeTab: "results",
+  running: false,
+  elapsedTimer: 0,
+};
+
+function storageGet(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value == null ? fallback : value;
+  } catch {
+    return fallback;
+  }
+}
+
+function storageSet(key, value) {
+  try { localStorage.setItem(key, String(value)); } catch { /* storage is optional */ }
+}
+
+function validDockHeight(value) {
+  const n = Number(value);
+  return [0, 36, 240, 400].includes(n) ? n : 36;
+}
+
+function updateProjectTitle() {
+  const title = wbState.projectName || "未命名电路";
+  const el = $("#projectName");
+  if (el) {
+    el.textContent = title;
+    el.title = title;
+  }
+  document.title = title + " · 工作台 · CommLab Studio";
+}
+
+function setProjectName(name) {
+  const clean = String(name || "").trim();
+  wbState.projectName = clean || "未命名电路";
+  updateProjectTitle();
+}
+
+function setSaveState(state, text) {
+  wbState.saveState = state;
+  const box = $("#saveState");
+  const label = $("#saveText");
+  if (box) box.dataset.state = state;
+  if (label) label.textContent = text || (state === "saved" ? "已保存" : state === "loading" ? "保存中…" : "未保存");
+}
+
+function markDirty() {
+  if (wbState.saveState === "loading") return;
+  setSaveState("dirty", "未保存");
+}
+
+function isEditableTarget(target) {
+  if (!target) return false;
+  const tag = String(target.tagName || "").toLowerCase();
+  return tag === "input" || tag === "textarea" || tag === "select" || target.isContentEditable;
+}
+
+let toastTimer = 0;
+function toast(message, ms = 2600) {
+  const el = $("#toast");
+  if (!el) return;
+  clearTimeout(toastTimer);
+  el.textContent = String(message || "");
+  el.hidden = false;
+  toastTimer = setTimeout(() => { el.hidden = true; }, ms);
+}
+
+function setDockStatus(text, options = {}) {
+  const label = $("#dockStatus");
+  const dot = $("#dockStatusDot");
+  const meta = $("#dockMeta");
+  if (label) label.textContent = String(text == null ? "" : text);
+  if (dot) dot.className = "status-dot" + (options.tone ? " " + options.tone : "");
+  if (meta) meta.textContent = options.meta == null ? "" : String(options.meta);
+}
+
+function formatShortElapsed(ms) {
+  const n = Math.max(0, Number(ms) || 0);
+  if (n < 10000) return (n / 1000).toFixed(1) + "s";
+  return Math.round(n / 1000) + "s";
+}
+
 // 画布 DOM 复用与增量渲染状态
 const SVG_NS = "http://www.w3.org/2000/svg";
 let canvasEl = null;
@@ -24,7 +132,6 @@ let sceneBuilt = false;
 let nodeEls = new Map();
 let edgeEls = new Map();
 let nodeIndex = new Map();
-let wireCache = new Map();
 let renderRaf = 0;
 let canvasSizeDirty = true;
 let canvasW = 0, canvasH = 0;
@@ -106,8 +213,9 @@ function paramMeta(name, desc, def) {
 }
 
 async function boot() {
-  const theme = localStorage.getItem("wb-theme") || "light";
+  const theme = storageGet("wb-theme", "light");
   document.documentElement.dataset.theme = theme;
+  initShell();
 
   DEVICES = await window.api.devices();
   PARAMS = await window.api.params();
@@ -120,111 +228,15 @@ async function boot() {
       d.className.toLowerCase().includes(q)));
   });
 
-  $("#btnRun").addEventListener("click", run);
-  $("#btnClear").addEventListener("click", () => { nodes = []; edges = []; selected = null; wireCache.clear(); render(); });
-  $("#btnSave").addEventListener("click", async () => {
-    const r = await window.api.save({
-      version: 1,
-      nodes: nodes.map((n) => ({ id: n.id, className: n.dev.className, x: n.x, y: n.y, inputs: n.inputs, outputs: n.outputs, values: n.values || [] })),
-      edges,
-    });
-    $("#drawerStatus").textContent = r.ok ? "已保存：" + r.path : "";
-  });
-  $("#btnLoad").addEventListener("click", async () => {
-    const r = await window.api.load();
-    if (!r.ok) return;
-    const byCn = new Map(DEVICES.map((d) => [d.className, d]));
-  const findDev = (cn) => {
-    if (byCn.has(cn)) return byCn.get(cn);
-    if (byCn.has(cn + "_Comm")) return byCn.get(cn + "_Comm");
-    if (cn.startsWith("Sourse_")) {
-      const alt = "Source_" + cn.slice(7);
-      if (byCn.has(alt + "_Comm")) return byCn.get(alt + "_Comm");
-    }
-    return null;
-  };
-    nodes = (r.data.nodes || []).map((n) => ({
-      id: n.id, dev: byCn.get(n.className) || { className: n.className, componentName: n.className, inputs: n.inputs, outputs: n.outputs },
-      x: n.x, y: n.y, inputs: n.inputs, outputs: n.outputs, values: n.values || [],
-    })).filter((n) => n.dev);
-    edges = r.data.edges || [];
-    seq = nodes.reduce((m, n) => Math.max(m, Number(String(n.id).replace(/\D/g, "")) || 0), 0);
-    selected = null;
-    wireCache.clear();
-    render();
-    $("#drawerStatus").textContent = "已打开：" + r.path;
-  });
-  $("#btnImportOcj").addEventListener("click", () => importOcj());
-  async function importOcj(sourcePath) {
-    const r = await window.api.importOcj(sourcePath);
-    if (!r || !r.ok) {
-      if (r && r.canceled) return;
-      $("#drawer").classList.add("open");
-      $("#drawerStatus").textContent = "导入 OCJ 失败";
-      $("#drawerBody").innerHTML = '<pre class="log">' + esc((r && r.reason) || "未知错误") + "</pre>";
-      return;
-    }
-    const byCn = new Map(DEVICES.map((d) => [d.className, d]));
-    nodes = (r.nodes || []).map((n) => {
-      const dev = byCn.get(n.className) || {
-        className: n.className, componentName: n.componentName || n.className,
-        inputs: n.inputs, outputs: n.outputs,
-      };
-      return {
-        id: n.id, dev, x: n.x, y: n.y, inputs: n.inputs, outputs: n.outputs,
-        values: n.values || [], label: n.label || "",
-      };
-    }).filter((n) => n.dev);
-    edges = r.edges || [];
-    seq = nodes.reduce((m, n) => Math.max(m, Number(String(n.id).replace(/\D/g, "")) || 0), 0);
-    selected = null;
-    wireCache.clear();
-    render();
-    requestAnimationFrame(() => { fitView(); render(); });
-    const warnings = Array.isArray(r.warnings) ? r.warnings : [];
-    $("#drawer").classList.add("open");
-    $("#drawerStatus").textContent = "已导入 OCJ · " + nodes.length + " 个器件 / " + edges.length + " 条连线" +
-      (warnings.length ? " · " + warnings.length + " 条提示" : "");
-    $("#drawerBody").innerHTML = warnings.length
-      ? '<pre class="log">' + esc(warnings.join("\n")) + "</pre>"
-      : '<p class="muted">工程已载入。点击“运行仿真”开始解算。</p>';
-  }
-  window.importOcj = importOcj;
-  $("#btnOld").addEventListener("click", async () => {
-    const btn = $("#btnOld");
-    const label = btn.textContent;
-    btn.disabled = true; btn.textContent = "正在转到老版…";
-    try {
-      const r = await window.api.openLab({
-        nodes: nodes.map((n) => ({
-          id: n.id, className: n.dev.className, x: n.x, y: n.y,
-          inputs: n.inputs, outputs: n.outputs, values: n.values || [],
-        })),
-        edges: edges.map((e) => ({ from: e.from, fromPort: e.fromPort, to: e.to, toPort: e.toPort })),
-      });
-      if (r && r.ok === false) $("#drawerStatus").textContent = "转到老版失败：" + (r.reason || "未知原因");
-      else if (r && r.warnings && r.warnings.length) $("#drawerStatus").textContent = "已转到老版：" + r.warnings.join("；");
-      else $("#drawerStatus").textContent = "已把当前电路转到老版实验台";
-    } catch (e) {
-      $("#drawerStatus").textContent = "转到老版失败：" + e.message;
-    } finally {
-      btn.disabled = false; btn.textContent = label;
-    }
-  });
-  $("#btnFromExp").addEventListener("click", openPicker);
-  $("#pickerClose").addEventListener("click", () => $("#picker").classList.remove("open"));
+  $("#pickerClose").addEventListener("click", closePicker);
   $("#pickerSearch").addEventListener("input", (e) => renderPicker(e.target.value.trim().toLowerCase()));
-  $("#drawerToggle").addEventListener("click", () => $("#drawer").classList.toggle("open"));
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Delete" && selected) {
-      nodes = nodes.filter((n) => n.id !== selected);
-      edges = edges.filter((x) => x.from !== selected && x.to !== selected);
-      wireCache.clear();
-      selected = null; render();
-    }
-    if (e.key === "Escape") { pending = null; connectFrom = null; clearHotPort(); render(); }
+  $("#clabFile").addEventListener("change", async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (file) await openClabFile(file);
   });
+
+  document.addEventListener("keydown", onGlobalKeyDown);
 
   // 监听器只绑定一次，所有节点/端口/连线通过事件委托处理
   document.addEventListener("mousemove", onPointerMove);
@@ -243,14 +255,22 @@ async function boot() {
 
   render();
 
+  updateProjectTitle();
+  setDockStatus("就绪");
+  updateCounts();
+
   const autoExp = new URLSearchParams(location.search).get("exp");
   if (autoExp) {
     try {
       const e = EXPS.find((x) => x.order === Number(autoExp));
       if (e) loadExperiment(e);
-      else $("#drawerStatus").textContent = "未找到实验 " + autoExp + "（共 " + EXPS.length + "）";
+      else {
+        setDockStatus("未找到实验 " + autoExp + "（共 " + EXPS.length + "）", { tone: "error" });
+        toast("未找到实验 " + autoExp);
+      }
     } catch (err) {
-      $("#drawerStatus").textContent = "载入失败：" + err.message;
+      setDockStatus("载入失败：" + err.message, { tone: "error" });
+      toast("载入失败：" + err.message);
     }
   }
 }
@@ -299,7 +319,7 @@ function addNode(dev) {
   };
   nodes.push(n);
   selected = n.id;
-  wireCache.clear();
+  markDirty();
   render();
 }
 
@@ -330,51 +350,14 @@ function fitView() {
   view.y = ch / 2 - ((minY + maxY) / 2) * s;
 }
 
-// ---- 正交走线：绕开器件本体，端口处留 16px 出线 ----
-const WIRE_PAD = 12, WIRE_STUB = 16, WIRE_TURN = 4, WIRE_R = 7;
-const DIRX = [1, 0, -1, 0], DIRY = [0, 1, 0, -1];
+// ---- 正交走线：优先 H-V-H，列间/行间空隙作为通道 ----
+const WIRE_STUB = 16, WIRE_R = 4;
+const WIRE_CLEAR = 8, WIRE_LANE = 6, WIRE_BEND = 110, WIRE_CORRIDOR = 20;
 
-function edgeRect(n) {
-  return { x: n.x - WIRE_PAD, y: n.y - WIRE_PAD, w: W + WIRE_PAD * 2, h: H + WIRE_PAD * 2 };
-}
+let wirePlan = new Map();
+let wirePlanKey = "";
 
 function fmt(v) { return Math.round(v * 10) / 10; }
-
-function curveD(p1, p2) {
-  const mx = (p1.x + p2.x) / 2;
-  return "M" + fmt(p1.x) + " " + fmt(p1.y) + " C" + fmt(mx) + " " + fmt(p1.y) + " " +
-    fmt(mx) + " " + fmt(p2.y) + " " + fmt(p2.x) + " " + fmt(p2.y);
-}
-
-class MinHeap {
-  constructor() { this.a = []; }
-  get size() { return this.a.length; }
-  push(f, v) {
-    const a = this.a; a.push([f, v]);
-    let i = a.length - 1;
-    while (i > 0) {
-      const p = (i - 1) >> 1;
-      if (a[p][0] <= a[i][0]) break;
-      const t = a[p]; a[p] = a[i]; a[i] = t; i = p;
-    }
-  }
-  pop() {
-    const a = this.a, top = a[0][1], last = a.pop();
-    if (a.length) {
-      a[0] = last;
-      let i = 0;
-      for (;;) {
-        const l = i * 2 + 1, r = l + 1;
-        let m = i;
-        if (l < a.length && a[l][0] < a[m][0]) m = l;
-        if (r < a.length && a[r][0] < a[m][0]) m = r;
-        if (m === i) break;
-        const t = a[m]; a[m] = a[i]; a[i] = t; i = m;
-      }
-    }
-    return top;
-  }
-}
 
 function simplify(pts) {
   let out = pts.filter((p, i) => i === 0 ||
@@ -410,105 +393,400 @@ function roundedD(pts) {
   return d + " L" + fmt(last.x) + " " + fmt(last.y);
 }
 
-// 在候选线网格上做 A*，线段与器件外扩 12px 的矩形不相交
-function orthoRoute(p1, p2, rects) {
-  const s = { x: p1.x + WIRE_STUB, y: p1.y };
-  const t = { x: p2.x - WIRE_STUB, y: p2.y };
-  const xsSet = new Set([s.x, t.x]);
-  const ysSet = new Set([s.y, t.y]);
-  for (const r of rects) {
-    xsSet.add(r.x); xsSet.add(r.x + r.w);
-    ysSet.add(r.y); ysSet.add(r.y + r.h);
-  }
-  const xs = [...xsSet].sort((a, b) => a - b);
-  const ys = [...ysSet].sort((a, b) => a - b);
-  const nx = xs.length, ny = ys.length;
-  const si = xs.indexOf(s.x), sj = ys.indexOf(s.y);
-  const ti = xs.indexOf(t.x), tj = ys.indexOf(t.y);
-  if (si < 0 || sj < 0 || ti < 0 || tj < 0) return null;
-
-  const inside = (x, y, r) => x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h;
-  const blocked = new Uint8Array(nx * ny);
-  for (let j = 0; j < ny; j++) {
-    for (let i = 0; i < nx; i++) {
-      for (const r of rects) if (inside(xs[i], ys[j], r)) { blocked[j * nx + i] = 1; break; }
-    }
-  }
-  if (blocked[sj * nx + si] || blocked[tj * nx + ti]) return null;
-
-  const hc = new Uint8Array(Math.max(0, nx - 1) * ny);
-  for (let j = 0; j < ny; j++) {
-    for (let i = 0; i < nx - 1; i++) {
-      let ok = 1;
-      const y = ys[j], x1 = xs[i], x2 = xs[i + 1];
-      for (const r of rects) {
-        if (y > r.y && y < r.y + r.h && x2 > r.x && x1 < r.x + r.w) { ok = 0; break; }
-      }
-      hc[j * (nx - 1) + i] = ok;
-    }
-  }
-  const vc = new Uint8Array(nx * Math.max(0, ny - 1));
-  for (let j = 0; j < ny - 1; j++) {
-    for (let i = 0; i < nx; i++) {
-      let ok = 1;
-      const x = xs[i], y1 = ys[j], y2 = ys[j + 1];
-      for (const r of rects) {
-        if (x > r.x && x < r.x + r.w && y2 > r.y && y1 < r.y + r.h) { ok = 0; break; }
-      }
-      vc[j * nx + i] = ok;
-    }
-  }
-
-  const manh = (i, j) => Math.abs(i - ti) + Math.abs(j - tj);
-  const states = nx * ny * 4;
-  const dist = new Float64Array(states).fill(Infinity);
-  const prev = new Int32Array(states).fill(-1);
-  const start = (sj * nx + si) * 4;
-  dist[start] = 0;
-  const heap = new MinHeap();
-  heap.push(manh(si, sj), start);
-  const goalCell = tj * nx + ti;
-  let found = -1;
-
-  while (heap.size) {
-    const cur = heap.pop();
-    if (dist[cur] === Infinity) continue;
-    const cell = cur >> 2, dir = cur & 3;
-    if (cell === goalCell) { found = cur; break; }
-    const i = cell % nx, j = (cell - i) / nx;
-    const g = dist[cur];
-    for (let nd = 0; nd < 4; nd++) {
-      const ni = i + DIRX[nd], nj = j + DIRY[nd];
-      if (ni < 0 || nj < 0 || ni >= nx || nj >= ny) continue;
-      if (blocked[nj * nx + ni]) continue;
-      if (nd === 0 && !hc[j * (nx - 1) + i]) continue;
-      if (nd === 2 && !hc[j * (nx - 1) + (i - 1)]) continue;
-      if (nd === 1 && !vc[j * nx + i]) continue;
-      if (nd === 3 && !vc[(j - 1) * nx + i]) continue;
-      const nid = (nj * nx + ni) * 4 + nd;
-      const ng = g + 1 + (nd === dir ? 0 : WIRE_TURN);
-      if (ng < dist[nid]) {
-        dist[nid] = ng;
-        prev[nid] = cur;
-        heap.push(ng + manh(ni, nj), nid);
-      }
-    }
-  }
-  if (found < 0) return null;
-
-  const cells = [];
-  for (let cur = found; cur >= 0; cur = prev[cur]) {
-    const cell = cur >> 2, i = cell % nx, j = (cell - i) / nx;
-    cells.push({ x: xs[i], y: ys[j] });
-  }
-  cells.reverse();
-  const pts = simplify([p1, ...cells, p2]);
-  return { d: roundedD(pts), box: pointsBox(pts) };
+function pointInsideRect(p, r) {
+  return p.x > r.x && p.x < r.x + r.w && p.y > r.y && p.y < r.y + r.h;
 }
 
-function orthoD(p1, p2, rects) {
-  const r = orthoRoute(p1, p2, rects || nodes.map(edgeRect));
-  return r ? r.d : null;
+function nodeRect(n, pad) {
+  return { x: n.x - pad, y: n.y - pad, w: W + pad * 2, h: H + pad * 2 };
+}
+
+function pointsLen(pts) {
+  let total = 0;
+  for (let i = 1; i < pts.length; i++) {
+    total += Math.abs(pts[i].x - pts[i - 1].x) + Math.abs(pts[i].y - pts[i - 1].y);
+  }
+  return total;
+}
+
+function routeBends(pts) {
+  return Math.max(0, pts.length - 2);
+}
+
+function segmentClear(a, b, ignore, obstacles) {
+  if (Math.abs(a.y - b.y) < 0.01) {
+    const y = a.y, x1 = Math.min(a.x, b.x), x2 = Math.max(a.x, b.x);
+    for (const o of obstacles) {
+      if (ignore.has(o.id)) continue;
+      const r = o.pad;
+      if (y > r.y && y < r.y + r.h && x2 > r.x && x1 < r.x + r.w) return false;
+    }
+    return true;
+  }
+  if (Math.abs(a.x - b.x) < 0.01) {
+    const x = a.x, y1 = Math.min(a.y, b.y), y2 = Math.max(a.y, b.y);
+    for (const o of obstacles) {
+      if (ignore.has(o.id)) continue;
+      const r = o.pad;
+      if (x > r.x && x < r.x + r.w && y2 > r.y && y1 < r.y + r.h) return false;
+    }
+    return true;
+  }
+  return false;
+}
+
+function pathClear(pts, ignore, obstacles) {
+  for (let i = 1; i < pts.length; i++) {
+    if (!segmentClear(pts[i - 1], pts[i], ignore, obstacles)) return false;
+  }
+  return true;
+}
+
+function buildRouteContext() {
+  const cols = [...new Set(nodes.map((n) => n.x))].sort((a, b) => a - b);
+  const rows = [...new Set(nodes.map((n) => n.y))].sort((a, b) => a - b);
+  const minX = Math.min(...nodes.map((n) => n.x));
+  const maxX = Math.max(...nodes.map((n) => n.x + W));
+  const minY = Math.min(...nodes.map((n) => n.y));
+  const maxY = Math.max(...nodes.map((n) => n.y + H));
+  const colChannels = [];
+  for (let i = 0; i < cols.length - 1; i++) {
+    const x1 = cols[i] + W + WIRE_CLEAR;
+    const x2 = cols[i + 1] - WIRE_CLEAR;
+    if (x2 - x1 >= 0) {
+      colChannels.push({ key: "col" + i, kind: "col", i, x1, x2, center: (x1 + x2) / 2 });
+    }
+  }
+  colChannels.push({
+    key: "outer-left", kind: "outer-left", i: -1,
+    x1: minX - WIRE_CLEAR - 40, x2: minX - WIRE_CLEAR, center: minX - WIRE_CLEAR - 20,
+  });
+  colChannels.push({
+    key: "outer-right", kind: "outer-right", i: 99,
+    x1: maxX + WIRE_CLEAR, x2: maxX + WIRE_CLEAR + 40, center: maxX + WIRE_CLEAR + 20,
+  });
+
+  const rowChannels = [];
+  for (let i = 0; i < rows.length - 1; i++) {
+    const y1 = rows[i] + H + WIRE_CLEAR;
+    const y2 = rows[i + 1] - WIRE_CLEAR;
+    if (y2 - y1 >= 0) {
+      rowChannels.push({ key: "row" + i, kind: "row", i, y1, y2, center: (y1 + y2) / 2 });
+    }
+  }
+  rowChannels.push({
+    key: "outer-top", kind: "outer-top", i: -1,
+    y1: minY - WIRE_CLEAR - 40, y2: minY - WIRE_CLEAR, center: minY - WIRE_CLEAR - 20,
+  });
+  rowChannels.push({
+    key: "outer-bottom", kind: "outer-bottom", i: 99,
+    y1: maxY + WIRE_CLEAR, y2: maxY + WIRE_CLEAR + 40, center: maxY + WIRE_CLEAR + 20,
+  });
+  const rowTraffic = new Map(rowChannels.map((c) => [c.key, 0]));
+  for (const e of edges) {
+    const a = nodeIndex.get(e.from), b = nodeIndex.get(e.to);
+    if (!a || !b) continue;
+    const p1 = portPos(a, "out", e.fromPort), p2 = portPos(b, "in", e.toPort);
+    const lo = Math.min(p1.y, p2.y), hi = Math.max(p1.y, p2.y);
+    for (const c of rowChannels) {
+      if (c.center > lo && c.center < hi) rowTraffic.set(c.key, rowTraffic.get(c.key) + 1);
+    }
+  }
+  return { colChannels, rowChannels, rowTraffic, minX, maxX, minY, maxY };
+}
+
+function routePoints(meta, p1, p2) {
+  if (meta.type === "straight") return [p1, p2];
+  if (meta.type === "3") {
+    const x = meta.lanes[0];
+    return [p1, { x, y: p1.y }, { x, y: p2.y }, p2];
+  }
+  const x1 = meta.lanes[0], x2 = meta.lanes[1], yc = meta.row.center;
+  return [p1, { x: x1, y: p1.y }, { x: x1, y: yc }, { x: x2, y: yc }, { x: x2, y: p2.y }, p2];
+}
+
+function addRouteCandidate(cands, meta, p1, p2, ignore, obstacles) {
+  const pts = simplify(routePoints(meta, p1, p2));
+  if (!pathClear(pts, ignore, obstacles)) return;
+  const length = pointsLen(pts);
+  const bends = routeBends(pts);
+  cands.push({ meta, basePts: pts, length, bends, cost: length + bends * WIRE_BEND + (meta.penalty || 0) });
+}
+
+function makeRouteIgnore(a, b, p1, p2, obstacles) {
+  const ignore = new Set([a.id, b.id]);
+  const overlap = [];
+  for (const o of obstacles) {
+    if (ignore.has(o.id)) continue;
+    if (pointInsideRect(p1, o.pad) || pointInsideRect(p2, o.pad)) {
+      ignore.add(o.id);
+      overlap.push(o.id);
+    }
+  }
+  return { ignore, overlap };
+}
+
+function routeEdgePlan(e, idx, ctx, obstacles) {
+  const a = nodeIndex.get(e.from), b = nodeIndex.get(e.to);
+  if (!a || !b) return null;
+  const p1 = portPos(a, "out", e.fromPort);
+  const p2 = portPos(b, "in", e.toPort);
+  const { ignore, overlap } = makeRouteIgnore(a, b, p1, p2, obstacles);
+  const reverse = p2.x < p1.x - 0.5;
+  const cands = [];
+
+  if (Math.abs(p1.y - p2.y) < 0.01) {
+    addRouteCandidate(cands, { type: "straight", lanes: [], vsegs: [] }, p1, p2, ignore, obstacles);
+  }
+
+  if (!reverse) {
+    const between = ctx.colChannels.filter((c) =>
+      c.kind === "col" && c.center > p1.x + WIRE_STUB && c.center < p2.x - WIRE_STUB);
+    for (const c of between) {
+      addRouteCandidate(cands, {
+        type: "3", ch: [c], lanes: [c.center],
+        vsegs: [{ ch: c, enterY: p1.y, exitY: p2.y, y1: p1.y, y2: p2.y }],
+      }, p1, p2, ignore, obstacles);
+    }
+
+    const pool = between.length ? between : ctx.colChannels.filter((c) => c.kind === "col");
+    const nearSrc = pool.slice().sort((u, v) =>
+      Math.abs(u.center - (p1.x + 120)) - Math.abs(v.center - (p1.x + 120))).slice(0, 6);
+    const nearDst = pool.slice().sort((u, v) =>
+      Math.abs(u.center - (p2.x - 120)) - Math.abs(v.center - (p2.x - 120))).slice(0, 6);
+    for (const x1c of nearSrc) {
+      for (const x2c of nearDst) {
+        for (const yc of ctx.rowChannels) {
+          addRouteCandidate(cands, {
+            type: "5", ch: [x1c, x2c], lanes: [x1c.center, x2c.center], row: yc,
+            penalty: (ctx.rowTraffic.get(yc.key) || 0) * WIRE_CORRIDOR,
+            vsegs: [
+              { ch: x1c, enterY: p1.y, exitY: yc.center, y1: p1.y, y2: yc.center },
+              { ch: x2c, enterY: yc.center, exitY: p2.y, y1: p2.y, y2: yc.center },
+            ],
+          }, p1, p2, ignore, obstacles);
+        }
+      }
+    }
+  } else {
+    const rightCh = ctx.colChannels.filter((c) =>
+      c.kind === "outer-right" || (c.kind === "col" && c.center > p1.x + WIRE_STUB))
+      .sort((u, v) => u.center - v.center).slice(0, 4);
+    const leftCh = ctx.colChannels.filter((c) =>
+      c.kind === "outer-left" || (c.kind === "col" && c.center < p2.x - WIRE_STUB))
+      .sort((u, v) => v.center - u.center).slice(0, 6);
+    const ycands = ctx.rowChannels.filter((c) =>
+      c.kind === "outer-top" || c.kind === "outer-bottom" ||
+      c.center < Math.min(p1.y, p2.y) - H / 2 || c.center > Math.max(p1.y, p2.y) + H / 2);
+    for (const x1c of rightCh) {
+      for (const x2c of leftCh) {
+        for (const yc of ycands) {
+          addRouteCandidate(cands, {
+            type: "rev", ch: [x1c, x2c], lanes: [x1c.center, x2c.center], row: yc,
+            penalty: (ctx.rowTraffic.get(yc.key) || 0) * WIRE_CORRIDOR,
+            vsegs: [
+              { ch: x1c, enterY: p1.y, exitY: yc.center, y1: p1.y, y2: yc.center },
+              { ch: x2c, enterY: yc.center, exitY: p2.y, y1: p2.y, y2: yc.center },
+            ],
+          }, p1, p2, ignore, obstacles);
+        }
+      }
+    }
+  }
+
+  if (!cands.length) {
+    const meta = reverse
+      ? {
+          type: "rev",
+          ch: [ctx.colChannels.find((c) => c.kind === "outer-right"), ctx.colChannels.find((c) => c.kind === "outer-left")],
+          lanes: [ctx.maxX + WIRE_CLEAR + 20, ctx.minX - WIRE_CLEAR - 20],
+          row: ctx.rowChannels.find((c) => c.kind === "outer-bottom") || ctx.rowChannels[0],
+          vsegs: [],
+        }
+      : { type: "3", ch: [], lanes: [(p1.x + p2.x) / 2], vsegs: [] };
+    const pts = simplify(routePoints(meta, p1, p2));
+    return {
+      idx, e, p1, p2, ignore, overlap, forced: true,
+      cand: { meta, basePts: pts, length: pointsLen(pts), bends: routeBends(pts), cost: Infinity },
+    };
+  }
+
+  cands.sort((u, v) => u.cost - v.cost);
+  return { idx, e, p1, p2, ignore, overlap, forced: false, cand: cands[0] };
+}
+
+function assignRouteLanes(routes) {
+  const groups = new Map();
+  for (const r of routes) {
+    if (!r || !r.cand || !r.cand.meta.vsegs) continue;
+    for (let j = 0; j < r.cand.meta.vsegs.length; j++) {
+      const vs = r.cand.meta.vsegs[j];
+      if (!vs.ch || vs.ch.kind !== "col") continue;
+      const key = vs.ch.key;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push({
+        r, j, ch: vs.ch,
+        enterY: vs.enterY != null ? vs.enterY : vs.y1,
+        exitY: vs.exitY != null ? vs.exitY : vs.y2,
+        y1: Math.min(vs.y1, vs.y2), y2: Math.max(vs.y1, vs.y2),
+        mid: (vs.y1 + vs.y2) / 2,
+      });
+    }
+  }
+
+  for (const list of groups.values()) {
+    const c = list[0].ch;
+    const n = list.length;
+    const width = Math.max(0, c.x2 - c.x1);
+    const step = n <= 1 ? 0 : Math.min(WIRE_LANE, width / (n - 1));
+    const laneX = (i) => {
+      let x = c.center + (i - (n - 1) / 2) * step;
+      if (x < c.x1) x = c.x1;
+      if (x > c.x2) x = c.x2;
+      return x;
+    };
+    const costOf = (order) => {
+      let cross = 0;
+      let span = 0;
+      for (let i = 0; i < order.length; i++) {
+        const u = order[i], xu = laneX(i);
+        span += Math.abs(xu - c.x1) + Math.abs(xu - c.x2);
+        for (let j = 0; j < order.length; j++) {
+          if (i === j) continue;
+          const v = order[j], xv = laneX(j);
+          if (xv < xu - 0.01 && u.enterY > v.y1 + 0.01 && u.enterY < v.y2 - 0.01) cross++;
+          if (xv > xu + 0.01 && u.exitY > v.y1 + 0.01 && u.exitY < v.y2 - 0.01) cross++;
+        }
+      }
+      return cross * 1000 + span * 0.001;
+    };
+    const candidates = [
+      list.slice().sort((a, b) => a.enterY - b.enterY || a.exitY - b.exitY),
+      list.slice().sort((a, b) => b.enterY - a.enterY || b.exitY - a.exitY),
+      list.slice().sort((a, b) => a.exitY - b.exitY || a.enterY - b.enterY),
+      list.slice().sort((a, b) => b.exitY - a.exitY || b.enterY - a.enterY),
+      list.slice().sort((a, b) => a.mid - b.mid || a.r.idx - b.r.idx),
+      list.slice().sort((a, b) => b.mid - a.mid || a.r.idx - b.r.idx),
+    ];
+    let best = candidates[0], bestCost = costOf(best);
+    for (let i = 1; i < candidates.length; i++) {
+      const cost = costOf(candidates[i]);
+      if (cost < bestCost) { best = candidates[i]; bestCost = cost; }
+    }
+    for (let i = 0; i < best.length; i++) {
+      best[i].r.cand.meta.lanes[best[i].j] = laneX(i);
+    }
+  }
+}
+
+function segmentBoundaryExit(inside, outside, r) {
+  if (Math.abs(inside.y - outside.y) < 0.01) {
+    if (inside.y <= r.y || inside.y >= r.y + r.h) return null;
+    const x = outside.x > inside.x ? r.x + r.w : r.x;
+    if ((outside.x > inside.x && x >= inside.x) || (outside.x < inside.x && x <= inside.x)) {
+      return { x, y: inside.y };
+    }
+    return null;
+  }
+  if (Math.abs(inside.x - outside.x) < 0.01) {
+    if (inside.x <= r.x || inside.x >= r.x + r.w) return null;
+    const y = outside.y > inside.y ? r.y + r.h : r.y;
+    if ((outside.y > inside.y && y >= inside.y) || (outside.y < inside.y && y <= inside.y)) {
+      return { x: inside.x, y };
+    }
+  }
+  return null;
+}
+
+function clipStartToCover(pts, cover) {
+  let k = 0;
+  while (k < pts.length && pointInsideRect(pts[k], cover.body)) k++;
+  if (k >= pts.length) return null;
+  if (k === 0) return pts;
+  const exit = segmentBoundaryExit(pts[k - 1], pts[k], cover.body);
+  if (!exit) return pts;
+  return simplify([exit, ...pts.slice(k)]);
+}
+
+function clipEndToCover(pts, cover) {
+  let k = pts.length - 1;
+  while (k >= 0 && pointInsideRect(pts[k], cover.body)) k--;
+  if (k < 0) return null;
+  if (k === pts.length - 1) return pts;
+  const exit = segmentBoundaryExit(pts[k + 1], pts[k], cover.body);
+  if (!exit) return pts;
+  return simplify([...pts.slice(0, k + 1), exit]);
+}
+
+// 端口被别的器件压住时，裁掉节点下面的隐藏段；视觉不变，路径也不再穿本体。
+function trimHiddenEndpoints(pts, obstacles, ownIds) {
+  let out = pts;
+  for (let guard = 0; guard < 4; guard++) {
+    let cover = null;
+    for (const o of obstacles) {
+      if (ownIds.has(o.id)) continue;
+      if (pointInsideRect(out[0], o.body)) { cover = o; break; }
+    }
+    if (!cover) break;
+    const next = clipStartToCover(out, cover);
+    if (!next) break;
+    out = next;
+  }
+  for (let guard = 0; guard < 4; guard++) {
+    let cover = null;
+    const last = out[out.length - 1];
+    for (const o of obstacles) {
+      if (ownIds.has(o.id)) continue;
+      if (pointInsideRect(last, o.body)) { cover = o; break; }
+    }
+    if (!cover) break;
+    const next = clipEndToCover(out, cover);
+    if (!next) break;
+    out = next;
+  }
+  return out;
+}
+
+function buildWirePlan() {
+  const ctx = buildRouteContext();
+  const obstacles = nodes.map((n, i) => ({
+    id: n.id, index: i, body: { x: n.x, y: n.y, w: W, h: H }, pad: nodeRect(n, WIRE_CLEAR),
+  }));
+  const routes = edges.map((e, i) => routeEdgePlan(e, i, ctx, obstacles));
+  assignRouteLanes(routes);
+  const plan = new Map();
+  for (const r of routes) {
+    if (!r || !r.cand) continue;
+    const ownIds = new Set([r.e.from, r.e.to]);
+    let pts = simplify(routePoints(r.cand.meta, r.p1, r.p2));
+    pts = trimHiddenEndpoints(pts, obstacles, ownIds);
+    if (pts.length < 2) pts = r.cand.basePts;
+    if (!pathClear(pts, r.ignore, obstacles)) {
+      if (r.cand.meta.vsegs) {
+        for (let j = 0; j < r.cand.meta.vsegs.length; j++) {
+          const ch = r.cand.meta.vsegs[j].ch;
+          if (ch) r.cand.meta.lanes[j] = ch.center;
+        }
+      }
+      pts = simplify(routePoints(r.cand.meta, r.p1, r.p2));
+      pts = trimHiddenEndpoints(pts, obstacles, ownIds);
+      if (!pathClear(pts, r.ignore, obstacles)) pts = r.cand.basePts;
+    }
+    plan.set(edgeKey(r.e), {
+      d: roundedD(pts), box: pointsBox(pts), pts,
+      bends: routeBends(pts), length: pointsLen(pts),
+      type: r.cand.meta.type, forced: r.forced, overlap: r.overlap,
+    });
+  }
+  return plan;
+}
+
+function wireSignature() {
+  let s = "";
+  for (const n of nodes) s += n.id + "," + n.x + "," + n.y + "," + n.inputs + "," + n.outputs + ";";
+  s += "|";
+  for (const e of edges) s += edgeKey(e) + ";";
+  return s;
 }
 
 function pointsBox(pts) {
@@ -522,28 +800,8 @@ function pointsBox(pts) {
   return { x1, y1, x2, y2 };
 }
 
-function curveBox(p1, p2) {
-  return {
-    x1: Math.min(p1.x, p2.x) - 40, y1: Math.min(p1.y, p2.y) - 40,
-    x2: Math.max(p1.x, p2.x) + 40, y2: Math.max(p1.y, p2.y) + 40,
-  };
-}
-
 function edgeKey(e) {
   return e.from + "|" + e.fromPort + "|" + e.to + "|" + e.toPort;
-}
-
-function boxesOverlap(box, rect) {
-  if (!box) return true;
-  const x2 = rect.x + rect.w, y2 = rect.y + rect.h;
-  return box.x1 <= x2 && box.x2 >= rect.x && box.y1 <= y2 && box.y2 >= rect.y;
-}
-
-function wireD(a, b, e, rects) {
-  const p1 = portPos(a, "out", e.fromPort);
-  const p2 = portPos(b, "in", e.toPort);
-  const routed = orthoRoute(p1, p2, rects || nodes.map(edgeRect));
-  return routed || { d: curveD(p1, p2), box: curveBox(p1, p2) };
 }
 
 function setSvgAttr(el, name, value) {
@@ -614,6 +872,8 @@ function renderNow() {
   syncInspector(false);
   const hint = $("#hint");
   if (hint) hint.classList.toggle("hide", nodes.length > 0);
+  const stageStatus = $("#stageStatus");
+  if (stageStatus) stageStatus.textContent = nodes.length + " 器件 · " + edges.length + " 连线";
 }
 
 function ensureNodeIndex() {
@@ -711,7 +971,6 @@ function syncNodes() {
     if (el && (el.inputs !== n.inputs || el.outputs !== n.outputs || el.devClass !== n.dev.className)) {
       el.g.remove();
       nodeEls.delete(n.id);
-      wireCache.clear();
       el = null;
     }
     if (!el) {
@@ -732,7 +991,11 @@ function syncNodes() {
 
 function syncEdges() {
   const alive = new Set();
-  let rects = null;
+  const sig = wireSignature();
+  if (sig !== wirePlanKey) {
+    wirePlan = buildWirePlan();
+    wirePlanKey = sig;
+  }
   for (const e of edges) {
     const a = nodeIndex.get(e.from);
     const b = nodeIndex.get(e.to);
@@ -750,21 +1013,11 @@ function syncEdges() {
       edgeEls.set(key, el);
     }
 
-    let cached = wireCache.get(key);
-    if (!cached || cached.aId !== a.id || cached.bId !== b.id ||
-        cached.aX !== a.x || cached.aY !== a.y || cached.bX !== b.x || cached.bY !== b.y) {
-      if (!rects) rects = nodes.map(edgeRect);
-      const path = wireD(a, b, e, rects);
-      cached = {
-        d: path.d, box: path.box,
-        aId: a.id, bId: b.id, aX: a.x, aY: a.y, bX: b.x, bY: b.y,
-      };
-      wireCache.set(key, cached);
-    }
-    if (el.d !== cached.d) {
-      setSvgAttr(el.hit, "d", cached.d);
-      setSvgAttr(el.wire, "d", cached.d);
-      el.d = cached.d;
+    const path = wirePlan.get(key);
+    if (path && el.d !== path.d) {
+      setSvgAttr(el.hit, "d", path.d);
+      setSvgAttr(el.wire, "d", path.d);
+      el.d = path.d;
     }
   }
   for (const [key, el] of edgeEls) {
@@ -772,7 +1025,6 @@ function syncEdges() {
       el.hit.remove();
       el.wire.remove();
       edgeEls.delete(key);
-      wireCache.delete(key);
     }
   }
 }
@@ -801,15 +1053,8 @@ function syncInspector(force) {
   renderInspector(n);
 }
 
-function invalidateWiresForNode(n, oldX, oldY) {
-  const oldRect = edgeRect({ x: oldX, y: oldY });
-  const newRect = edgeRect(n);
-  for (const [key, entry] of wireCache) {
-    if (entry.aId === n.id || entry.bId === n.id ||
-        boxesOverlap(entry.box, oldRect) || boxesOverlap(entry.box, newRect)) {
-      wireCache.delete(key);
-    }
-  }
+function invalidateWiresForNode() {
+  wirePlanKey = "";
 }
 
 
@@ -817,6 +1062,7 @@ function connect(from, toId, toPort) {
   if (!from || from.nodeId === toId) return;
   edges = edges.filter((e) => !(e.to === toId && e.toPort === toPort));
   edges.push({ from: from.nodeId, fromPort: from.port, to: toId, toPort });
+  markDirty();
 }
 
 // 松开鼠标时找输入口：先精确命中，再在 26px 内吸附最近输入口
@@ -892,6 +1138,7 @@ function onCanvasClick(ev) {
   if (!p) return;
   const parts = p.dataset.edge.split("|");
   edges = edges.filter((e) => !(e.from === parts[0] && e.fromPort === Number(parts[1]) && e.to === parts[2] && e.toPort === Number(parts[3])));
+  markDirty();
   render();
 }
 
@@ -949,6 +1196,7 @@ function onPointerMove(ev) {
   const oldX = n.x, oldY = n.y;
   n.x = nx;
   n.y = ny;
+  drag.moved = true;
   invalidateWiresForNode(n, oldX, oldY);
   scheduleRender();
 }
@@ -956,6 +1204,7 @@ function onPointerMove(ev) {
 function onPointerUp(ev) {
   const hadPan = !!pan;
   const hadDrag = !!drag;
+  const dragMoved = !!(drag && drag.moved);
   pan = null;
   drag = null;
   if (connectFrom) {
@@ -967,6 +1216,7 @@ function onPointerUp(ev) {
     render();
     return;
   }
+  if (dragMoved) markDirty();
   if (hadPan || hadDrag) render();
 }
 
@@ -1036,6 +1286,7 @@ function renderInspector(n) {
       const btn = box.querySelector('.preset[data-reset="' + j + '"]');
       if (btn) btn.disabled = inp.value === (meta.def || "");
       inspectorKey = inspectorKeyFor(n);
+      markDirty();
     };
     inp.addEventListener("input", onEdit);
     inp.addEventListener("change", onEdit);
@@ -1051,6 +1302,7 @@ function renderInspector(n) {
       n.values[j] = inp.value;
       btn.disabled = true;
       inspectorKey = inspectorKeyFor(n);
+      markDirty();
       inp.focus();
     });
   });
@@ -1058,14 +1310,14 @@ function renderInspector(n) {
   if (btnResetAll) {
     btnResetAll.addEventListener("click", () => {
       n.values = [];
+      markDirty();
       renderInspector(n);
     });
   }
   $("#btnDel").addEventListener("click", () => {
     nodes = nodes.filter((x) => x.id !== n.id);
     edges = edges.filter((x) => x.from !== n.id && x.to !== n.id);
-    wireCache.clear();
-    selected = null; render();
+    selected = null; markDirty(); render();
   });
   inspectorKey = inspectorKeyFor(n);
 }
@@ -1097,36 +1349,301 @@ function wbPhaseLabel(phase) {
   })[phase] || phase || "运行中";
 }
 
-function wbProgressInner(p) {
-  const phase = (p && p.phase) || "running";
-  const done = !!(p && p.done);
-  const percent = p && Number.isFinite(p.percent) ? Math.max(0, Math.min(100, p.percent)) : null;
-  const indeterminate = !done && ((p && p.indeterminate !== false) || percent == null);
-  const width = done ? 100 : (percent == null ? 100 : percent);
-  const timeout = p && Number.isFinite(p.timeoutMs) ? " · 上限 " + wbFormatElapsed(p.timeoutMs) : "";
-  const cancelText = done ? "已结束" : (wbCancelling ? "正在取消…" : "取消运行");
-  const stateText = done ? wbPhaseLabel(phase) : (indeterminate ? "阶段进度待引擎回报" : percent + "%");
-  const barStyle = "width:" + width + "%;height:100%;border-radius:999px;background:" + (indeterminate ? "rgba(120,120,120,.55)" : "#3a3a3a") + ";transition:width .2s ease";
-  return '<div style="margin:2px 0 16px;padding:11px 12px;border:1px solid #d8d4ca;border-radius:5px;background:#faf8f2">' +
-    '<div style="display:flex;justify-content:space-between;gap:12px;font-size:12px;color:#333">' +
-      '<strong style="font-weight:600">' + esc(wbPhaseLabel(phase)) + '</strong>' +
-      '<span style="color:#777">已耗时 ' + esc(wbFormatElapsed(p && p.elapsedMs)) + esc(timeout) + '</span>' +
-    '</div>' +
-    '<div style="height:4px;margin:9px 0 8px;border-radius:999px;background:#e4e0d6;overflow:hidden"><div style="' + barStyle + '"></div></div>' +
-    '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:11px;color:#777">' +
-      '<span>' + esc(stateText) + '</span>' +
-      '<button type="button" data-wb-cancel="1" style="appearance:none;border:1px solid #cfc9bc;background:transparent;color:#444;font-size:11px;padding:4px 9px;border-radius:4px;cursor:pointer" ' + (done || wbCancelling ? "disabled" : "") + '>' + esc(cancelText) + '</button>' +
-    '</div>' +
-  '</div>';
+function updateCounts() {
+  const resultCount = wbState.results.length;
+  const metricCount = wbState.metrics.length;
+  const countResults = $("#countResults");
+  const countMetrics = $("#countMetrics");
+  const reopenCount = $("#dockReopenCount");
+  if (countResults) countResults.textContent = String(resultCount);
+  if (countMetrics) countMetrics.textContent = String(metricCount);
+  if (reopenCount) reopenCount.textContent = String(resultCount);
+  const logDot = $("#logDot");
+  if (logDot) logDot.hidden = !wbState.log;
+}
+
+function applyDockHeight(value, options = {}) {
+  const height = validDockHeight(value);
+  if (height >= 240) wbState.lastDockHeight = height;
+  wbState.dockHeight = height;
+  const dock = $("#dock");
+  if (dock) {
+    dock.dataset.height = String(height);
+    dock.style.height = height + "px";
+  }
+  const reopen = $("#dockReopen");
+  if (reopen) reopen.hidden = height !== 0;
+  if (options.persist !== false) {
+    storageSet(WB_KEYS.dockHeight, height);
+    if (height >= 240) storageSet(WB_KEYS.dockLastHeight, height);
+  }
+}
+
+function setDockTab(tab, options = {}) {
+  const next = ["results", "metrics", "log"].includes(tab) ? tab : "results";
+  wbState.activeTab = next;
+  const dock = $("#dock");
+  if (dock) dock.dataset.tab = next;
+  document.querySelectorAll(".dock-tab").forEach((btn) => {
+    const active = btn.dataset.tab === next;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-selected", active ? "true" : "false");
+  });
+  const panes = { results: $("#paneResults"), metrics: $("#paneMetrics"), log: $("#paneLog") };
+  Object.keys(panes).forEach((key) => {
+    if (panes[key]) {
+      panes[key].hidden = key !== next;
+      panes[key].classList.toggle("active", key === next);
+    }
+  });
+  storageSet(WB_KEYS.dockTab, next);
+  if (options.open !== false && wbState.dockHeight < 240) {
+    applyDockHeight(wbState.lastDockHeight || 240);
+  }
+}
+
+function openDock() {
+  applyDockHeight(wbState.lastDockHeight || 240);
+}
+
+function collapseDock() {
+  applyDockHeight(36);
+}
+
+function closeDock() {
+  applyDockHeight(0);
+}
+
+function toggleDock() {
+  if (wbState.dockHeight >= 240) collapseDock();
+  else openDock();
+}
+
+function resetRunResults() {
+  wbState.resultGeneration += 1;
+  if (wbState.idleHandle && window.cancelIdleCallback) {
+    window.cancelIdleCallback(wbState.idleHandle);
+    wbState.idleHandle = 0;
+  }
+  wbState.results = [];
+  wbState.svgs = [];
+  wbState.metrics = [];
+  wbState.log = "";
+  wbState.backend = "";
+  if (!wbState.running) wbState.status = "idle";
+  wbState.firstImageMs = null;
+  wbState.firstImagePaintMs = null;
+  const grid = $("#resultsGrid");
+  if (grid) grid.innerHTML = "";
+  const metricsGrid = $("#metricsGrid");
+  if (metricsGrid) metricsGrid.innerHTML = "";
+  const resultsEmpty = $("#resultsEmpty");
+  if (resultsEmpty) {
+    resultsEmpty.hidden = false;
+    resultsEmpty.textContent = "运行后在这里查看图形结果。";
+  }
+  const metricsEmpty = $("#metricsEmpty");
+  if (metricsEmpty) {
+    metricsEmpty.hidden = false;
+    metricsEmpty.textContent = "本题没有 BER 指标";
+  }
+  const logPre = $("#logPre");
+  if (logPre) logPre.textContent = "暂无日志";
+  const copyLog = $("#copyLog");
+  if (copyLog) copyLog.disabled = true;
+  updateCounts();
+}
+
+function renderLog(text) {
+  wbState.log = String(text == null ? "" : text);
+  const pre = $("#logPre");
+  if (pre) pre.textContent = wbState.log || "暂无日志";
+  const copy = $("#copyLog");
+  if (copy) copy.disabled = !wbState.log;
+  const dot = $("#logDot");
+  if (dot) dot.hidden = !wbState.log;
+}
+
+function safeSvgText(svg) {
+  return String(svg || "").replace(/<\?xml[^>]*\?>/, "").replace(/<!DOCTYPE[^>]*>/i, "");
+}
+
+function getResultSvg(index) {
+  const item = wbState.results[index];
+  if (!item) return "";
+  if (wbState.svgs[index] == null) wbState.svgs[index] = safeSvgText(item.svg);
+  return wbState.svgs[index];
+}
+
+function makeResultFigure(index) {
+  const result = wbState.results[index];
+  if (!result) return null;
+  const svg = getResultSvg(index);
+  const fig = document.createElement("figure");
+  fig.dataset.i = String(index);
+  const wrap = document.createElement("div");
+  wrap.className = "fig";
+  wrap.dataset.i = String(index);
+  wrap.title = "点击放大";
+  wrap.innerHTML = svg;
+  wrap.addEventListener("click", () => openLightbox(svg, result.device || "结果图"));
+  const caption = document.createElement("figcaption");
+  const device = document.createElement("span");
+  device.className = "device";
+  device.textContent = result.device || result.file || ("图 " + (index + 1));
+  const save = document.createElement("button");
+  save.type = "button";
+  save.className = "mini";
+  save.textContent = "导出 SVG";
+  save.addEventListener("click", async (event) => {
+    event.stopPropagation();
+    await saveSvgIndex(index, save);
+  });
+  caption.appendChild(device);
+  caption.appendChild(save);
+  fig.appendChild(wrap);
+  fig.appendChild(caption);
+  return fig;
+}
+
+function scheduleRemainingResults(start, generation) {
+  if (start >= wbState.results.length) return;
+  const run = (deadline) => {
+    if (generation !== wbState.resultGeneration) return;
+    const grid = $("#resultsGrid");
+    if (!grid) return;
+    const fragment = document.createDocumentFragment();
+    let added = 0;
+    while (start < wbState.results.length && added < 2) {
+      if (added > 0 && deadline && typeof deadline.timeRemaining === "function" && deadline.timeRemaining() < 3) break;
+      const fig = makeResultFigure(start);
+      if (fig) fragment.appendChild(fig);
+      start += 1;
+      added += 1;
+    }
+    if (fragment.childNodes.length) grid.appendChild(fragment);
+    if (start < wbState.results.length) scheduleRemainingResults(start, generation);
+  };
+  if (window.requestIdleCallback) {
+    wbState.idleHandle = window.requestIdleCallback(run, { timeout: 180 });
+  } else {
+    wbState.idleHandle = setTimeout(() => run({ timeRemaining: () => 12 }), 24);
+  }
+}
+
+function renderResults(results, metrics, log) {
+  wbState.resultGeneration += 1;
+  const generation = wbState.resultGeneration;
+  wbState.results = Array.isArray(results) ? results.slice() : [];
+  wbState.svgs = new Array(wbState.results.length);
+  wbState.metrics = (Array.isArray(metrics) ? metrics : []).filter((m) => m && m.kind === "metric");
+
+  const grid = $("#resultsGrid");
+  if (grid) grid.innerHTML = "";
+  const resultsEmpty = $("#resultsEmpty");
+  if (resultsEmpty) {
+    resultsEmpty.hidden = wbState.results.length > 0;
+    resultsEmpty.textContent = wbState.results.length ? "" : "本次运行没有图形结果。";
+  }
+  if (wbState.results.length) {
+    const first = makeResultFigure(0);
+    if (first && grid) grid.appendChild(first);
+    wbState.firstImageMs = Math.max(0, performance.now() - (wbState.runStartedAt || performance.now()));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (generation === wbState.resultGeneration) {
+        wbState.firstImagePaintMs = Math.max(0, performance.now() - (wbState.runStartedAt || performance.now()));
+      }
+    }));
+    scheduleRemainingResults(1, generation);
+  }
+  renderLog(log);
+  updateCounts();
+  renderMetrics(wbState.metrics);
+}
+
+function renderMetrics(metrics) {
+  const grid = $("#metricsGrid");
+  const empty = $("#metricsEmpty");
+  if (grid) grid.innerHTML = "";
+  if (!metrics.length) {
+    if (empty) {
+      empty.hidden = false;
+      empty.textContent = "本题没有 BER 指标";
+    }
+    return;
+  }
+  if (empty) empty.hidden = true;
+  const fragment = document.createDocumentFragment();
+  for (const metric of metrics) {
+    const card = document.createElement("div");
+    card.className = "metric-card";
+    const head = document.createElement("div");
+    head.className = "metric-head";
+    const name = document.createElement("span");
+    name.className = "metric-name";
+    name.textContent = String(metric.name || "BER").toUpperCase();
+    name.title = String(metric.name || "").toUpperCase() === "BER" ? "误码率" : "";
+    const device = document.createElement("span");
+    device.className = "metric-device";
+    device.textContent = metric.device || "";
+    head.appendChild(name);
+    head.appendChild(device);
+    const value = document.createElement("div");
+    value.className = "metric-value";
+    value.textContent = formatMetricValue(metric.value != null ? metric.value : metric.ber);
+    const detail = document.createElement("div");
+    detail.className = "metric-detail";
+    const errors = metric.errors == null ? "—" : String(metric.errors);
+    const total = metric.total == null ? "—" : String(metric.total);
+    detail.textContent = errors + " / " + total + " bit";
+    card.appendChild(head);
+    card.appendChild(value);
+    card.appendChild(detail);
+    fragment.appendChild(card);
+  }
+  if (grid) grid.appendChild(fragment);
+}
+
+function setDockProgress(progress) {
+  const wrap = $("#dockProgress");
+  const bar = $("#dockProgressBar");
+  if (!wrap || !bar) return;
+  const done = !progress || !!progress.done;
+  if (done) {
+    wrap.hidden = true;
+    wrap.classList.remove("indeterminate");
+    bar.style.transform = "";
+    return;
+  }
+  wrap.hidden = false;
+  const percent = Number.isFinite(progress.percent) ? Math.max(0, Math.min(100, progress.percent)) : null;
+  if (percent == null || progress.indeterminate !== false) {
+    wrap.classList.add("indeterminate");
+    bar.style.transform = "";
+  } else {
+    wrap.classList.remove("indeterminate");
+    bar.style.transform = "scaleX(" + (percent / 100) + ")";
+  }
 }
 
 function updateWbProgress(p) {
   wbLastProgress = p;
-  const mount = document.getElementById("wbProgressMount");
-  if (!mount) return;
-  mount.innerHTML = wbProgressInner(p);
-  const btn = mount.querySelector("[data-wb-cancel]");
-  if (btn && !btn.disabled) btn.addEventListener("click", cancelWbRun);
+  setDockProgress(p);
+  const elapsed = p && Number.isFinite(p.elapsedMs)
+    ? p.elapsedMs
+    : (wbState.runStartedAt ? performance.now() - wbState.runStartedAt : 0);
+  if (wbState.running && !(p && p.done)) {
+    setDockStatus("正在解算 · " + formatShortElapsed(elapsed), {
+      tone: "running",
+      meta: wbPhaseLabel(p && p.phase),
+    });
+  }
+  const cancel = $("#dockCancel");
+  if (cancel) {
+    cancel.hidden = !wbState.running;
+    cancel.disabled = wbCancelling;
+    cancel.textContent = wbCancelling ? "取消中…" : "取消";
+  }
 }
 
 async function cancelWbRun() {
@@ -1146,18 +1663,43 @@ async function cancelWbRun() {
   }
 }
 
-async function run() {
-  if (!nodes.length) return;
+function setRunButtonRunning(running) {
   const btn = $("#btnRun");
-  btn.disabled = true; btn.textContent = "运行中…";
-  $("#drawer").classList.add("open");
-  $("#drawerStatus").textContent = "正在运行电路…";
-  $("#drawerBody").innerHTML = '<div id="wbProgressMount"></div>';
+  if (!btn) return;
+  btn.disabled = running;
+  btn.classList.toggle("is-running", running);
+  btn.setAttribute("aria-busy", running ? "true" : "false");
+  const label = btn.querySelector(".run-label");
+  if (label) label.textContent = running ? "运行中" : "运行";
+}
 
+async function run() {
+  if (wbState.running) return;
+  if (!nodes.length) {
+    toast("画布还没有器件");
+    setDockStatus("就绪", { meta: "画布为空" });
+    return;
+  }
   const runId = "wb-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+  wbState.running = true;
+  wbState.status = "running";
+  wbState.runStartedAt = performance.now();
+  wbState.firstImageMs = null;
+  wbState.firstImagePaintMs = null;
   wbActiveRunId = runId;
   wbCancelling = false;
-  updateWbProgress({ phase: "connecting", elapsedMs: 0, indeterminate: true, timeoutMs: null });
+  wbLastProgress = null;
+  resetRunResults();
+  setRunButtonRunning(true);
+  if (wbState.dockHeight === 0) applyDockHeight(36);
+  setDockStatus("正在解算 · 0.0s", { tone: "running", meta: "准备中" });
+  setDockProgress({ phase: "connecting", indeterminate: true });
+  const cancel = $("#dockCancel");
+  if (cancel) {
+    cancel.hidden = false;
+    cancel.disabled = false;
+    cancel.textContent = "取消";
+  }
 
   const timer = setInterval(async () => {
     if (wbActiveRunId !== runId) return;
@@ -1166,6 +1708,14 @@ async function run() {
       if (wbActiveRunId === runId && s && s.progress) updateWbProgress(s.progress);
     } catch { /* progress polling must not break the run */ }
   }, 250);
+  const elapsedTimer = setInterval(() => {
+    if (!wbState.running || wbActiveRunId !== runId) return;
+    const phase = wbLastProgress && wbLastProgress.phase;
+    setDockStatus("正在解算 · " + formatShortElapsed(performance.now() - wbState.runStartedAt), {
+      tone: "running",
+      meta: wbPhaseLabel(phase),
+    });
+  }, 100);
 
   try {
     const r = await window.api.runGraph({
@@ -1176,44 +1726,40 @@ async function run() {
     if (!r.ok) {
       const status = (r && r.status) || "failed";
       const label = status === "cancelled" ? "运行已取消" : status === "timeout" ? "运行超时" : "运行失败";
-      $("#drawerStatus").textContent = label;
-      $("#drawerBody").innerHTML = '<pre class="log">' + esc(r.reason || "") + "</pre>";
+      wbState.status = status;
+      setDockStatus(label, { tone: status === "cancelled" ? "" : "error", meta: r.reason || "" });
+      renderLog(r.reason || "");
+      toast(label + (r.reason ? "：" + r.reason : ""));
       return;
     }
-    ensureMetricStyles();
     const results = Array.isArray(r.results) ? r.results : [];
-    const metrics = Array.isArray(r.metrics) ? r.metrics : [];
-    $("#drawerStatus").textContent = "完成 · " + results.length + " 张图" +
-      (metrics.length ? " · " + metrics.length + " 项指标" : "") +
-      (r.backend ? " · " + r.backend : "") + (r.fallbackFrom ? " · 已回退" : "");
-    const svgs = results.map((x) => String(x.svg).replace(/<\?xml[^>]*\?>/, "").replace(/<!DOCTYPE[^>]*>/, ""));
-    const figs = results.map((x, i) =>
-      '<figure><div class="fig" data-i="' + i + '">' + svgs[i] + "</div>" +
-      '<figcaption><span>' + esc(x.device) + '</span><button class="mini" data-save="' + i + '">导出 SVG</button></figcaption></figure>'
-    ).join("");
-    const log = r.log ? '<pre class="log">' + esc(r.log) + "</pre>" : "";
-    const metricHtml = metricsHtml(metrics);
-    const body = $("#drawerBody");
-    body.innerHTML = metricHtml + (figs ? '<div class="results">' + figs + "</div>" : "") + log;
-    body.querySelectorAll(".fig").forEach((el) => {
-      el.addEventListener("click", () => openLightbox(svgs[Number(el.dataset.i)]));
+    const metrics = (Array.isArray(r.metrics) ? r.metrics : []).filter((m) => m && m.kind === "metric");
+    wbState.backend = r.backend || "";
+    wbState.status = "done";
+    renderResults(results, metrics, r.log || "");
+    const elapsed = Number.isFinite(r.elapsedMs) ? r.elapsedMs : performance.now() - wbState.runStartedAt;
+    const meta = [r.backend || "native", formatShortElapsed(elapsed)];
+    if (r.fallbackFrom) meta.push("回退自 " + r.fallbackFrom);
+    setDockStatus(results.length + " 图 · " + metrics.length + " 指标", {
+      tone: "done",
+      meta: meta.filter(Boolean).join(" · "),
     });
-    body.querySelectorAll("[data-save]").forEach((saveBtn) => {
-      saveBtn.addEventListener("click", async (ev) => {
-        ev.stopPropagation();
-        const i = Number(saveBtn.dataset.save);
-        const out = await window.api.saveSvg({ name: results[i].file || "figure.svg", svg: svgs[i] });
-        if (out && out.ok) saveBtn.textContent = "已导出";
-      });
-    });
+    updateCounts();
   } catch (e) {
-    $("#drawerStatus").textContent = "运行失败";
-    $("#drawerBody").innerHTML = '<pre class="log">' + esc(e.message) + "</pre>";
+    wbState.status = "failed";
+    setDockStatus("运行失败", { tone: "error", meta: e && e.message ? e.message : String(e) });
+    renderLog(e && e.message ? e.message : String(e));
+    toast("运行失败：" + (e && e.message ? e.message : e));
   } finally {
     clearInterval(timer);
+    clearInterval(elapsedTimer);
     if (wbActiveRunId === runId) wbActiveRunId = null;
+    wbState.running = false;
     wbCancelling = false;
-    btn.disabled = false; btn.textContent = "运行仿真";
+    setRunButtonRunning(false);
+    setDockProgress(null);
+    const cancelBtn = $("#dockCancel");
+    if (cancelBtn) cancelBtn.hidden = true;
   }
 }
 
@@ -1226,43 +1772,577 @@ function formatMetricValue(value) {
   return Number.isFinite(n) ? n.toExponential(2) : "—";
 }
 
-function metricsHtml(metrics) {
-  const items = Array.isArray(metrics) ? metrics.filter((m) => m && m.kind === "metric") : [];
-  if (!items.length) return "";
-  return '<div class="metrics">' + items.map((m) => {
-    const label = String(m.name || "").toUpperCase() === "BER" ? "误码率" : String(m.name || "指标");
-    const errors = m.errors == null ? "—" : String(m.errors);
-    const total = m.total == null ? "—" : String(m.total);
-    return '<div class="metric-card">' +
-      '<div class="metric-head"><span class="metric-name">' + esc(label) + '</span>' +
-      '<span class="metric-device">' + esc(m.device || "") + '</span></div>' +
-      '<div class="metric-value">' + esc(formatMetricValue(m.value != null ? m.value : m.ber)) + '</div>' +
-      '<div class="metric-detail">' + esc(errors) + ' / ' + esc(total) + ' bit</div>' +
-      '</div>';
-  }).join("") + '</div>';
+function fileBaseName(filePath) {
+  const base = String(filePath || "").split(/[\\/]/).pop() || "";
+  return base.replace(/\.(clab|json)$/i, "") || "未命名电路";
 }
 
-function ensureMetricStyles() {
-  if (document.getElementById("wbMetricStyles")) return;
-  const style = document.createElement("style");
-  style.id = "wbMetricStyles";
-  style.textContent = ".metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:0 0 18px}" +
-    ".metric-card{border:1px solid var(--rule);border-radius:4px;background:var(--paper-2);padding:12px 14px}" +
-    ".metric-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}" +
-    ".metric-name{font-size:12px;letter-spacing:.04em;color:var(--muted)}" +
-    ".metric-device{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted)}" +
-    ".metric-value{margin-top:8px;font-family:var(--mono);font-size:22px;line-height:1.1;color:var(--ink)}" +
-    ".metric-detail{margin-top:5px;font-family:var(--mono);font-size:11px;color:var(--muted)}";
-  document.head.appendChild(style);
+function findDeviceForClass(className) {
+  const byCn = new Map(DEVICES.map((d) => [d.className, d]));
+  if (byCn.has(className)) return byCn.get(className);
+  if (byCn.has(className + "_Comm")) return byCn.get(className + "_Comm");
+  if (String(className).startsWith("Sourse_")) {
+    const alt = "Source_" + String(className).slice(7);
+    if (byCn.has(alt + "_Comm")) return byCn.get(alt + "_Comm");
+  }
+  return null;
+}
+
+function restoreDockStatus() {
+  if (wbState.running) return;
+  if (wbState.status === "done") {
+    setDockStatus(wbState.results.length + " 图 · " + wbState.metrics.length + " 指标", {
+      tone: "done",
+      meta: wbState.backend || "native",
+    });
+  } else if (wbState.results.length) {
+    setDockStatus(wbState.results.length + " 图 · " + wbState.metrics.length + " 指标", { tone: "done" });
+  } else {
+    setDockStatus("就绪");
+  }
+}
+
+function applySavedData(data, name) {
+  if (!data || !Array.isArray(data.nodes)) throw new Error("文件里没有电路节点");
+  nodes = data.nodes.map((n) => {
+    const dev = findDeviceForClass(n.className) || {
+      className: n.className,
+      componentName: n.componentName || n.className,
+      inputs: n.inputs,
+      outputs: n.outputs,
+    };
+    return {
+      id: n.id,
+      dev,
+      x: Number(n.x) || 0,
+      y: Number(n.y) || 0,
+      inputs: n.inputs,
+      outputs: n.outputs,
+      values: Array.isArray(n.values) ? n.values : [],
+      label: n.label || "",
+    };
+  }).filter((n) => n.dev);
+  edges = Array.isArray(data.edges) ? data.edges : [];
+  seq = nodes.reduce((m, n) => Math.max(m, Number(String(n.id).replace(/\D/g, "")) || 0), 0);
+  selected = null;
+  resetRunResults();
+  setProjectName(name || "未命名电路");
+  setSaveState("saved", "已打开");
+  render();
+  requestAnimationFrame(() => { fitView(); render(); });
+  setDockStatus("已打开 · " + nodes.length + " 器件 / " + edges.length + " 连线", { meta: name || "" });
+}
+
+async function openClabFile(file) {
+  if (wbState.running) {
+    toast("运行中，完成后再载入");
+    return;
+  }
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    applySavedData(data, fileBaseName(file.name));
+    toast("已打开 " + file.name);
+  } catch (err) {
+    setDockStatus("打开失败", { tone: "error", meta: err.message });
+    renderLog(err.message);
+    toast("打开失败：" + err.message);
+  }
+}
+
+async function importOcj(sourcePath) {
+  if (wbState.running) {
+    toast("运行中，完成后再载入");
+    return;
+  }
+  const r = await window.api.importOcj(sourcePath);
+  if (!r || !r.ok) {
+    if (r && r.canceled) return;
+    const reason = (r && r.reason) || "未知错误";
+    setDockStatus("导入 OCJ 失败", { tone: "error", meta: reason });
+    renderLog(reason);
+    toast("导入 OCJ 失败：" + reason);
+    return;
+  }
+  nodes = (r.nodes || []).map((n) => {
+    const dev = findDeviceForClass(n.className) || {
+      className: n.className,
+      componentName: n.componentName || n.className,
+      inputs: n.inputs,
+      outputs: n.outputs,
+    };
+    return {
+      id: n.id,
+      dev,
+      x: n.x,
+      y: n.y,
+      inputs: n.inputs,
+      outputs: n.outputs,
+      values: n.values || [],
+      label: n.label || "",
+    };
+  }).filter((n) => n.dev);
+  edges = r.edges || [];
+  seq = nodes.reduce((m, n) => Math.max(m, Number(String(n.id).replace(/\D/g, "")) || 0), 0);
+  selected = null;
+  resetRunResults();
+  setProjectName(r.name || fileBaseName(r.path));
+  setSaveState("dirty", "未保存");
+  const warnings = Array.isArray(r.warnings) ? r.warnings : [];
+  if (warnings.length) renderLog(warnings.join("\n"));
+  render();
+  requestAnimationFrame(() => { fitView(); render(); });
+  setDockStatus("已导入 · " + nodes.length + " 器件 / " + edges.length + " 连线" +
+    (warnings.length ? " · " + warnings.length + " 条提示" : ""), { meta: r.name || "" });
+  toast("已导入 " + (r.name || "OCJ 工程"));
+}
+
+async function saveProject(saveAs) {
+  const payload = {
+    version: 1,
+    nodes: nodes.map((n) => ({
+      id: n.id,
+      className: n.dev.className,
+      x: n.x,
+      y: n.y,
+      inputs: n.inputs,
+      outputs: n.outputs,
+      values: n.values || [],
+      label: n.label || "",
+    })),
+    edges,
+  };
+  const wasDirty = wbState.saveState === "dirty";
+  setSaveState("loading", saveAs ? "另存中…" : "保存中…");
+  try {
+    const r = await window.api.save(payload);
+    if (!r || !r.ok) {
+      setSaveState(wasDirty ? "dirty" : "saved", wasDirty ? "未保存" : "已保存");
+      if (r && !r.canceled) toast("保存失败");
+      return;
+    }
+    wbState.lastSavedPath = r.path || "";
+    setSaveState("saved", "已保存");
+    if (saveAs || wbState.projectName === "未命名电路") setProjectName(fileBaseName(r.path));
+    toast("已保存");
+    setDockStatus("已保存", { meta: fileBaseName(r.path) });
+    setTimeout(restoreDockStatus, 1600);
+  } catch (err) {
+    setSaveState(wasDirty ? "dirty" : "saved", wasDirty ? "未保存" : "已保存");
+    toast("保存失败：" + err.message);
+  }
+}
+
+async function saveSvgIndex(index, trigger) {
+  const item = wbState.results[index];
+  if (!item) return;
+  const button = trigger && trigger.nodeType === 1 ? trigger : null;
+  const original = button ? button.textContent : "";
+  if (button) {
+    button.disabled = true;
+    button.textContent = "导出中…";
+  }
+  try {
+    const out = await window.api.saveSvg({ name: item.file || "figure.svg", svg: getResultSvg(index) });
+    if (out && out.ok) {
+      if (button) button.textContent = "已导出";
+      toast("已导出 SVG");
+    } else if (!(out && out.canceled)) {
+      if (button) button.textContent = original || "导出 SVG";
+      toast("导出 SVG 失败");
+    }
+  } catch (err) {
+    if (button) button.textContent = original || "导出 SVG";
+    toast("导出 SVG 失败：" + err.message);
+  } finally {
+    if (button) {
+      setTimeout(() => {
+        button.disabled = false;
+        button.textContent = original || "导出 SVG";
+      }, 1200);
+    }
+  }
+}
+
+function showSvgDialog() {
+  if (!wbState.results.length) {
+    toast("还没有可导出的结果图");
+    return;
+  }
+  const list = $("#svgDialogList");
+  if (!list) return;
+  list.innerHTML = "";
+  wbState.results.forEach((item, index) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "svg-item";
+    const no = document.createElement("span");
+    no.className = "si";
+    no.textContent = "图 " + String(index + 1).padStart(2, "0");
+    const name = document.createElement("span");
+    name.className = "sd";
+    name.textContent = item.device || item.file || "结果图";
+    btn.appendChild(no);
+    btn.appendChild(name);
+    btn.addEventListener("click", async () => {
+      await saveSvgIndex(index, btn);
+      const dialog = $("#svgDialog");
+      if (dialog && dialog.open) dialog.close();
+    });
+    list.appendChild(btn);
+  });
+  const dialog = $("#svgDialog");
+  if (dialog && !dialog.open) dialog.showModal();
+}
+
+async function exportReport() {
+  setDockStatus("正在生成 PDF…", { meta: "最近一次运行" });
+  try {
+    const r = await window.api.runGraph({ __control: "report-export" });
+    if (r && r.ok) {
+      toast("报告已导出");
+      setDockStatus("报告已导出", { tone: "done" });
+    } else if (!(r && r.canceled)) {
+      const reason = (r && r.reason) || "未知错误";
+      toast("导出报告失败：" + reason);
+      setDockStatus("导出报告失败", { tone: "error", meta: reason });
+    }
+  } catch (err) {
+    toast("导出报告失败：" + err.message);
+    setDockStatus("导出报告失败", { tone: "error", meta: err.message });
+  } finally {
+    setTimeout(restoreDockStatus, 1800);
+  }
+}
+
+async function openLegacy() {
+  setDockStatus("正在转到老版…", { meta: "兼容模式" });
+  try {
+    const r = await window.api.openLab({
+      nodes: nodes.map((n) => ({
+        id: n.id,
+        className: n.dev.className,
+        x: n.x,
+        y: n.y,
+        inputs: n.inputs,
+        outputs: n.outputs,
+        values: n.values || [],
+      })),
+      edges: edges.map((e) => ({ from: e.from, fromPort: e.fromPort, to: e.to, toPort: e.toPort })),
+    });
+    if (r && r.ok === false) {
+      setDockStatus("转到老版失败", { tone: "error", meta: r.reason || "未知原因" });
+      toast("转到老版失败：" + (r.reason || "未知原因"));
+    } else if (r && r.warnings && r.warnings.length) {
+      setDockStatus("已转到老版", { meta: r.warnings.join("；") });
+      toast("已转到老版：" + r.warnings.join("；"));
+    } else {
+      setDockStatus("已转到老版实验台", { tone: "done" });
+      toast("已转到老版实验台");
+    }
+  } catch (err) {
+    setDockStatus("转到老版失败", { tone: "error", meta: err.message });
+    toast("转到老版失败：" + err.message);
+  }
+}
+
+function clearCircuit() {
+  if (wbState.running) {
+    toast("运行中，暂不清空");
+    return;
+  }
+  nodes = [];
+  edges = [];
+  selected = null;
+  seq = 0;
+  resetRunResults();
+  setProjectName("未命名电路");
+  setSaveState("dirty", "未保存");
+  render();
+  setDockStatus("就绪", { meta: "画布为空" });
+  toast("已清空电路");
+  const dialog = $("#confirmDialog");
+  if (dialog && dialog.open) dialog.close();
+}
+
+async function copyLog() {
+  if (!wbState.log) return;
+  const button = $("#copyLog");
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(wbState.log);
+    } else {
+      const area = document.createElement("textarea");
+      area.value = wbState.log;
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    }
+    if (button) {
+      button.textContent = "已复制";
+      setTimeout(() => { button.textContent = "复制"; }, 1200);
+    }
+  } catch (err) {
+    toast("复制失败：" + err.message);
+  }
 }
 
 boot();
 
+function setPaneCollapsed(pane, button, collapsed, persist) {
+  if (!pane || !button) return;
+  pane.classList.toggle("collapsed", collapsed);
+  button.setAttribute("aria-expanded", collapsed ? "false" : "true");
+  const label = pane.id === "palettePane" ? "器件库" : "属性面板";
+  const title = (collapsed ? "展开" : "收起") + label;
+  button.title = title;
+  button.setAttribute("aria-label", title);
+  if (persist) storageSet(pane.id === "palettePane" ? WB_KEYS.palette : WB_KEYS.inspector, collapsed ? "1" : "0");
+  canvasSizeDirty = true;
+  scheduleRender();
+}
+
+function closeMenus() {
+  document.querySelectorAll(".menu").forEach((menu) => { menu.hidden = true; });
+  document.querySelectorAll("[aria-haspopup=\"menu\"]").forEach((button) => {
+    button.setAttribute("aria-expanded", "false");
+  });
+}
+
+function toggleMenu(button, menu) {
+  const willOpen = menu.hidden;
+  closeMenus();
+  if (!willOpen) return;
+  menu.hidden = false;
+  button.setAttribute("aria-expanded", "true");
+  const first = menu.querySelector("button");
+  if (first) first.focus({ preventScroll: true });
+}
+
+function bindMenuButton(button, menu) {
+  if (!button || !menu) return;
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    toggleMenu(button, menu);
+  });
+}
+
+function startDockDrag(ev) {
+  if (ev.button !== 0) return;
+  const dock = $("#dock");
+  if (!dock) return;
+  ev.preventDefault();
+  const startY = ev.clientY;
+  const startHeight = wbState.dockHeight || 36;
+  let moved = false;
+  dock.classList.add("is-dragging");
+  document.body.style.cursor = "ns-resize";
+  const onMove = (event) => {
+    const delta = startY - event.clientY;
+    if (Math.abs(delta) > 2) moved = true;
+    const max = Math.max(240, window.innerHeight - 160);
+    const height = Math.max(0, Math.min(max, startHeight + delta));
+    dock.style.height = height + "px";
+    dock.dataset.height = height >= 120 ? "240" : "36";
+  };
+  const finish = () => {
+    document.removeEventListener("pointermove", onMove);
+    document.removeEventListener("pointerup", finish);
+    document.removeEventListener("pointercancel", finish);
+    document.body.style.cursor = "";
+    dock.classList.remove("is-dragging");
+    if (!moved) {
+      applyDockHeight(wbState.dockHeight, { persist: false });
+      return;
+    }
+    const current = Number.parseFloat(dock.style.height) || wbState.dockHeight;
+    const snapped = current < 120 ? 0 : current < 320 ? 240 : 400;
+    applyDockHeight(snapped);
+  };
+  document.addEventListener("pointermove", onMove);
+  document.addEventListener("pointerup", finish);
+  document.addEventListener("pointercancel", finish);
+}
+
+function closeTopLayers() {
+  if (document.getElementById("lightbox")) {
+    closeLightbox();
+    return true;
+  }
+  const picker = $("#picker");
+  if (picker && picker.classList.contains("open")) {
+    closePicker();
+    return true;
+  }
+  const confirm = $("#confirmDialog");
+  if (confirm && confirm.open) {
+    confirm.close();
+    return true;
+  }
+  const svgDialog = $("#svgDialog");
+  if (svgDialog && svgDialog.open) {
+    svgDialog.close();
+    return true;
+  }
+  if (document.querySelector(".menu:not([hidden])")) {
+    closeMenus();
+    return true;
+  }
+  return false;
+}
+
+function onGlobalKeyDown(event) {
+  const mod = event.ctrlKey || event.metaKey;
+  if (event.key === "Escape") {
+    if (closeTopLayers()) {
+      event.preventDefault();
+      return;
+    }
+    if (pending || connectFrom) {
+      pending = null;
+      connectFrom = null;
+      clearHotPort();
+      render();
+      event.preventDefault();
+      return;
+    }
+    if (wbState.dockHeight !== 0) {
+      closeDock();
+      event.preventDefault();
+    }
+    return;
+  }
+  if (mod && (event.key === "`" || event.code === "Backquote")) {
+    event.preventDefault();
+    toggleDock();
+    return;
+  }
+  if (mod && event.key.toLowerCase() === "s") {
+    event.preventDefault();
+    saveProject(event.shiftKey);
+    return;
+  }
+  if (mod && event.key === "Enter") {
+    event.preventDefault();
+    run();
+    return;
+  }
+  if (event.key === "Delete" && selected && !isEditableTarget(event.target)) {
+    nodes = nodes.filter((n) => n.id !== selected);
+    edges = edges.filter((edge) => edge.from !== selected && edge.to !== selected);
+    selected = null;
+    markDirty();
+    render();
+    event.preventDefault();
+  }
+}
+
+function initShell() {
+  const storedHeight = validDockHeight(storageGet(WB_KEYS.dockHeight, 36));
+  const storedLast = validDockHeight(storageGet(WB_KEYS.dockLastHeight, 240));
+  wbState.lastDockHeight = storedLast >= 240 ? storedLast : 240;
+  applyDockHeight(storedHeight, { persist: false });
+  setDockTab(storageGet(WB_KEYS.dockTab, "results"), { open: false });
+  setPaneCollapsed($("#palettePane"), $("#paletteToggle"), storageGet(WB_KEYS.palette, "0") === "1", false);
+  setPaneCollapsed($("#inspectorPane"), $("#inspectorToggle"), storageGet(WB_KEYS.inspector, "0") === "1", false);
+
+  bindMenuButton($("#btnImport"), $("#importMenu"));
+  bindMenuButton($("#btnMore"), $("#moreMenu"));
+  $("#btnBack").addEventListener("click", () => window.close());
+  $("#btnRun").addEventListener("click", run);
+  $("#menuFromExp").addEventListener("click", openPicker);
+  $("#menuImportOcj").addEventListener("click", () => importOcj());
+  $("#menuOpenClab").addEventListener("click", () => $("#clabFile").click());
+  $("#menuSave").addEventListener("click", () => saveProject(false));
+  $("#menuSaveAs").addEventListener("click", () => saveProject(true));
+  $("#menuReport").addEventListener("click", exportReport);
+  $("#menuExportSvg").addEventListener("click", showSvgDialog);
+  $("#menuClear").addEventListener("click", () => {
+    const dialog = $("#confirmDialog");
+    if (dialog && !dialog.open) dialog.showModal();
+  });
+  $("#menuLegacy").addEventListener("click", openLegacy);
+
+  $("#paletteToggle").addEventListener("click", () => {
+    const pane = $("#palettePane");
+    setPaneCollapsed(pane, $("#paletteToggle"), !pane.classList.contains("collapsed"), true);
+  });
+  $("#inspectorToggle").addEventListener("click", () => {
+    const pane = $("#inspectorPane");
+    setPaneCollapsed(pane, $("#inspectorToggle"), !pane.classList.contains("collapsed"), true);
+  });
+
+  document.querySelectorAll(".dock-tab").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      setDockTab(button.dataset.tab, { open: true });
+    });
+  });
+  $("#dockCollapse").addEventListener("click", collapseDock);
+  $("#dockClose").addEventListener("click", closeDock);
+  $("#dockReopen").addEventListener("click", openDock);
+  $("#dockCancel").addEventListener("click", cancelWbRun);
+  $("#dockResize").addEventListener("pointerdown", startDockDrag);
+  $("#dockBar").addEventListener("pointerdown", (event) => {
+    if (event.target.closest("button")) return;
+    startDockDrag(event);
+  });
+  $("#dockBar").addEventListener("click", (event) => {
+    if (event.target.closest("button")) return;
+    if (wbState.dockHeight < 240) openDock();
+  });
+  $("#copyLog").addEventListener("click", copyLog);
+
+  $("#confirmCancel").addEventListener("click", () => {
+    const dialog = $("#confirmDialog");
+    if (dialog && dialog.open) dialog.close();
+  });
+  $("#confirmClear").addEventListener("click", clearCircuit);
+  $("#svgDialogClose").addEventListener("click", () => {
+    const dialog = $("#svgDialog");
+    if (dialog && dialog.open) dialog.close();
+  });
+  $("#svgDialog").addEventListener("click", (event) => {
+    if (event.target === event.currentTarget) event.currentTarget.close();
+  });
+  $("#picker").addEventListener("click", (event) => {
+    if (event.target === event.currentTarget) closePicker();
+  });
+
+  document.querySelectorAll(".menu").forEach((menu) => {
+    menu.addEventListener("click", (event) => {
+      if (event.target.closest(".menu-item")) closeMenus();
+    });
+  });
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".menu-anchor")) closeMenus();
+  });
+
+  const commandBar = document.querySelector(".commandbar");
+  const removeInjected = () => {
+    const injected = document.getElementById("wbReportBtn");
+    if (injected) injected.remove();
+  };
+  removeInjected();
+  if (commandBar && window.MutationObserver) {
+    new MutationObserver(removeInjected).observe(commandBar, { childList: true, subtree: true });
+  }
+}
+
 
 function openPicker() {
+  closeMenus();
   $("#picker").classList.add("open");
   renderPicker("");
   setTimeout(() => $("#pickerSearch").focus(), 30);
+}
+
+function closePicker() {
+  const picker = $("#picker");
+  if (picker) picker.classList.remove("open");
 }
 
 const MODULE_ORDER = ["模块一", "模块二", "模块三", "模块四", "模块五", "模块六", "模块七"];
@@ -1276,16 +2356,37 @@ function expSort(list) {
 }
 
 function renderPicker(q) {
-  const list = expSort(q ? EXPS.filter((e) => e.title.toLowerCase().includes(q) || String(e.order) === q) : EXPS);
+  const list = expSort(q ? EXPS.filter((e) =>
+    e.title.toLowerCase().includes(q) ||
+    String(e.order) === q ||
+    String(e.module || "").toLowerCase().includes(q)) : EXPS);
   const box = $("#pickerList");
+  if (!box) return;
   box.innerHTML = "";
+  if (!list.length) {
+    const empty = document.createElement("div");
+    empty.className = "panel-empty";
+    empty.textContent = "没有匹配的实验";
+    box.appendChild(empty);
+    return;
+  }
   for (const e of list) {
     const it = document.createElement("div");
     it.className = "picker-item";
-    it.innerHTML = '<span class="pt"></span><span class="pm"></span>';
+    it.tabIndex = 0;
+    it.setAttribute("role", "button");
+    it.innerHTML = '<span class="po"></span><span class="pt"></span><span class="pm"></span>';
+    it.querySelector(".po").textContent = "#" + String(e.order).padStart(2, "0");
     it.querySelector(".pt").textContent = e.title;
     it.querySelector(".pm").textContent = e.module || "";
-    it.addEventListener("click", () => { $("#picker").classList.remove("open"); loadExperiment(e); });
+    it.addEventListener("click", () => { closePicker(); loadExperiment(e); });
+    it.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        closePicker();
+        loadExperiment(e);
+      }
+    });
     box.appendChild(it);
   }
 }
@@ -1304,26 +2405,19 @@ function splitArgs(text) {
 }
 
 function loadExperiment(exp) {
+  if (wbState.running) {
+    toast("运行中，完成后再载入");
+    return;
+  }
   nodes = []; edges = []; selected = null; seq = 0;
-  wireCache.clear();
-  const byCn = new Map(DEVICES.map((d) => [d.className, d]));
-  const findDev = (cn) => {
-    if (byCn.has(cn)) return byCn.get(cn);
-    if (byCn.has(cn + "_Comm")) return byCn.get(cn + "_Comm");
-    if (cn.startsWith("Sourse_")) {
-      const alt = "Source_" + cn.slice(7);
-      if (byCn.has(alt + "_Comm")) return byCn.get(alt + "_Comm");
-    }
-    return null;
-  };
   const varNode = new Map();
   const col = (i) => 60 + (i % 6) * 180;
   const row = (i) => 70 + Math.floor(i / 6) * 92;
 
   let k = 0;
-  for (const c of exp.chain) {
+  for (const c of exp.chain || []) {
     seq += 1;
-    const dev = findDev(c.fn) || { className: c.fn, componentName: c.fn, inputs: 0, outputs: 0 };
+    const dev = findDeviceForClass(c.fn) || { className: c.fn, componentName: c.fn, inputs: 0, outputs: 0 };
     const id = "n" + seq;
     const tokens = splitArgs(c.args);
     const ins = [], vals = [];
@@ -1340,7 +2434,7 @@ function loadExperiment(exp) {
 
   for (const o of exp.observers || []) {
     seq += 1;
-    const dev = findDev(o.fn) || { className: o.fn, componentName: o.fn, inputs: 1, outputs: 0 };
+    const dev = findDeviceForClass(o.fn) || { className: o.fn, componentName: o.fn, inputs: 1, outputs: 0 };
     const id = "n" + seq;
     const tokens = splitArgs(o.args);
     const srcs = [];
@@ -1354,20 +2448,88 @@ function loadExperiment(exp) {
     k += 1;
   }
 
+  resetRunResults();
+  setProjectName(exp.title);
+  setSaveState("dirty", "未保存");
   render();
-  $("#drawerStatus").textContent = "已载入：" + exp.title;
+  requestAnimationFrame(() => { fitView(); render(); });
+  setDockStatus("已载入 · " + nodes.length + " 器件 / " + edges.length + " 连线", { meta: exp.title });
+  toast("已载入 " + exp.title);
 }
 
 
-function openLightbox(svg) {
-  let box = document.getElementById("lightbox");
+function closeLightbox() {
+  const box = document.getElementById("lightbox");
   if (box) box.remove();
-  box = document.createElement("div");
-  box.id = "lightbox";
-  box.className = "lightbox";
-  box.innerHTML = '<div class="box">' + svg + '</div>';
-  box.addEventListener("click", () => box.remove());
-  document.body.appendChild(box);
-  const onKey = (e) => { if (e.key === "Escape") { box.remove(); document.removeEventListener("keydown", onKey); } };
-  document.addEventListener("keydown", onKey);
 }
+
+function openLightbox(svg, title) {
+  closeLightbox();
+  const overlay = document.createElement("div");
+  overlay.id = "lightbox";
+  overlay.className = "lightbox";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-label", title || "结果图预览");
+  const box = document.createElement("div");
+  box.className = "box";
+  box.innerHTML = String(svg || "");
+  const close = document.createElement("button");
+  close.type = "button";
+  close.className = "close";
+  close.textContent = "×";
+  close.title = "关闭";
+  close.setAttribute("aria-label", "关闭预览");
+  close.addEventListener("click", closeLightbox);
+  box.prepend(close);
+  box.addEventListener("click", (event) => event.stopPropagation());
+  overlay.addEventListener("click", closeLightbox);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+window.importOcj = importOcj;
+window.__wbDebug = {
+  getState() {
+    return {
+      projectName: wbState.projectName,
+      saveState: wbState.saveState,
+      nodeCount: nodes.length,
+      edgeCount: edges.length,
+      resultsCount: wbState.results.length,
+      metricsCount: wbState.metrics.length,
+      renderedResults: document.querySelectorAll("#resultsGrid figure").length,
+      renderedMetrics: document.querySelectorAll("#metricsGrid .metric-card").length,
+      logLength: wbState.log.length,
+      backend: wbState.backend,
+      status: wbState.status,
+      running: wbState.running,
+      firstImageMs: wbState.firstImageMs,
+      firstImagePaintMs: wbState.firstImagePaintMs,
+      dockHeight: wbState.dockHeight,
+      activeTab: wbState.activeTab,
+      metrics: wbState.metrics.map((m) => ({
+        name: m.name,
+        value: m.value != null ? m.value : m.ber,
+        errors: m.errors,
+        total: m.total,
+        device: m.device,
+      })),
+    };
+  },
+  run,
+  importOcj,
+  loadExperimentByOrder(order) {
+    const exp = EXPS.find((x) => x.order === Number(order));
+    if (!exp) return false;
+    loadExperiment(exp);
+    return true;
+  },
+  openDock,
+  closeDock,
+  collapseDock,
+  setDockHeight: applyDockHeight,
+  setDockTab,
+  openPicker,
+  closePicker,
+};

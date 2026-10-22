@@ -20,6 +20,15 @@ contextBridge.exposeInMainWorld("api", {
   exportReport: (payload) => ipcRenderer.invoke("report:export", payload),
   openExternal: (url) => ipcRenderer.invoke("shell:open", url),
   checkEnvironment: () => ipcRenderer.invoke("environment:check"),
+  openSettings: () => ipcRenderer.invoke("settings:open"),
+  settingsGet: () => ipcRenderer.invoke("settings:get"),
+  settingsSet: (settings) => ipcRenderer.invoke("settings:set", settings),
+  settingsTestEngine: (payload) => ipcRenderer.invoke("settings:testEngine", payload),
+  onSettingsAppearance: (cb) => {
+    const listener = (_event, info) => cb(info);
+    ipcRenderer.on("settings:appearance", listener);
+    return () => ipcRenderer.removeListener("settings:appearance", listener);
+  },
   nativeStatus: () => ipcRenderer.invoke("native:status"),
   checkUpdate: () => ipcRenderer.invoke("update:check"),
   applyUpdate: () => ipcRenderer.invoke("update:apply"),

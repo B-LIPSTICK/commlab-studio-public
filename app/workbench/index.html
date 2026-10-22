@@ -2,82 +2,236 @@
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="utf-8" />
+<meta name="color-scheme" content="light dark" />
 <title>工作台 · CommLab Studio</title>
 <link rel="stylesheet" href="workbench.css" />
 </head>
 <body>
-<header class="bar">
-  <div class="brand">
-    <span class="dot"></span>
-    <h1>工作台</h1>
-    <span class="tag">新版实验台</span>
+<header class="commandbar">
+  <div class="command-left">
+    <button id="btnBack" class="btn btn-ghost back-btn" type="button" title="关闭工作台并返回课程库">
+      <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 3 5.5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>课程库</span>
+    </button>
+    <span class="command-rule" aria-hidden="true"></span>
+    <div class="project-block">
+      <div id="projectName" class="project-name" title="未命名电路">未命名电路</div>
+      <div id="saveState" class="save-state" data-state="dirty">
+        <span class="save-dot" aria-hidden="true"></span>
+        <span id="saveText">未保存</span>
+      </div>
+    </div>
   </div>
-  <div class="tools">
-    <button id="btnFromExp" class="btn">从题库载入</button>
-    <button id="btnImportOcj" class="btn" title="导入 Rainier .ocj 工程">导入 OCJ</button>
-    <button id="btnSave" class="btn">保存</button>
-    <button id="btnLoad" class="btn">打开</button>
-    <button id="btnRun" class="btn primary">运行仿真</button>
-    <button id="btnClear" class="btn">清空</button>
-    <button id="btnOld" class="btn ghost">老版实验台</button>
+
+  <div class="command-actions">
+    <div class="menu-anchor">
+      <button id="btnImport" class="btn btn-secondary" type="button" aria-haspopup="menu" aria-expanded="false" title="载入电路">
+        <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v7.2M5.2 7.2 8 10l2.8-2.8M3 12.5h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>导入</span>
+        <svg class="icon chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m4.5 6.5 3.5 3.5 3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div id="importMenu" class="menu" role="menu" hidden>
+        <button id="menuFromExp" class="menu-item" type="button" role="menuitem">
+          <span>从题库载入</span><span class="menu-hint">题库</span>
+        </button>
+        <button id="menuImportOcj" class="menu-item" type="button" role="menuitem">
+          <span>导入 OCJ</span><span class="menu-hint">.ocj</span>
+        </button>
+        <button id="menuOpenClab" class="menu-item" type="button" role="menuitem">
+          <span>打开 .clab</span><span class="menu-hint">电路文件</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Kept for the host's report-button injection compatibility. The host button is hidden. -->
+    <div class="tools">
+      <button id="btnRun" class="btn btn-primary run-btn" type="button" title="运行仿真">
+        <svg class="icon run-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3.4v9.2l7-4.6-7-4.6Z" fill="currentColor"/></svg>
+        <span class="run-label">运行</span>
+      </button>
+    </div>
+
+    <div class="menu-anchor">
+      <button id="btnMore" class="btn btn-ghost icon-btn" type="button" aria-haspopup="menu" aria-expanded="false" title="更多操作" aria-label="更多操作">
+        <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="3" cy="8" r="1.2" fill="currentColor"/><circle cx="8" cy="8" r="1.2" fill="currentColor"/><circle cx="13" cy="8" r="1.2" fill="currentColor"/></svg>
+      </button>
+      <div id="moreMenu" class="menu more-menu" role="menu" hidden>
+        <button id="menuSave" class="menu-item" type="button" role="menuitem">
+          <span>保存</span><kbd>Ctrl S</kbd>
+        </button>
+        <button id="menuSaveAs" class="menu-item" type="button" role="menuitem">
+          <span>另存为</span><kbd>Ctrl Shift S</kbd>
+        </button>
+        <div class="menu-sep" role="separator"></div>
+        <button id="menuReport" class="menu-item" type="button" role="menuitem">
+          <span>导出报告 PDF</span><span class="menu-hint">最近一次运行</span>
+        </button>
+        <button id="menuExportSvg" class="menu-item" type="button" role="menuitem">
+          <span>导出 SVG</span><span class="menu-hint">选择结果图</span>
+        </button>
+        <div class="menu-sep" role="separator"></div>
+        <button id="menuClear" class="menu-item danger" type="button" role="menuitem">
+          <span>清空电路</span><span class="menu-hint">需确认</span>
+        </button>
+        <button id="menuLegacy" class="menu-item" type="button" role="menuitem">
+          <span>老版实验台</span><span class="menu-hint">兼容</span>
+        </button>
+      </div>
+    </div>
   </div>
 </header>
 
-<main class="grid">
-  <aside class="palette">
-    <input id="search" class="search" type="search" placeholder="搜索器件" />
-    <div id="paletteList" class="palette-list"></div>
+<main class="workspace">
+  <aside id="palettePane" class="pane palette" aria-label="器件库">
+    <div class="pane-head">
+      <span class="pane-title">器件库</span>
+      <button id="paletteToggle" class="pane-toggle" type="button" aria-expanded="true" title="收起器件库" aria-label="收起器件库">
+        <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m9.5 4-4 4 4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="pane-content">
+      <label class="search-wrap" for="search">
+        <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="m10.2 10.2 3 3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input id="search" class="search" type="search" placeholder="搜索器件" autocomplete="off" />
+      </label>
+      <div id="paletteList" class="palette-list"></div>
+    </div>
   </aside>
 
-  <section class="stage">
+  <section id="stage" class="stage" aria-label="电路画布">
     <svg id="canvas" class="canvas"></svg>
     <div class="empty" id="hint">
-  <svg viewBox="0 0 460 240" aria-hidden="true">
-    <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M40 196 H420"/>
-      <rect x="62" y="86" width="150" height="104" rx="6"/>
-      <rect x="76" y="100" width="122" height="62" rx="3"/>
-      <path d="M84 146 h14 v-26 h18 v26 h14 v-26 h18 v26 h14 v-26 h18"/>
-      <circle cx="86" cy="178" r="3"/><circle cx="100" cy="178" r="3"/>
-      <rect x="268" y="104" width="120" height="86" rx="6"/>
-      <rect x="280" y="116" width="96" height="48" rx="3"/>
-      <path d="M286 140 c8 -18 16 -18 24 0 c8 18 16 18 24 0 c8 -18 16 -18 24 0"/>
-      <circle cx="292" cy="178" r="3"/><circle cx="304" cy="178" r="3"/>
-      <path d="M212 140 C 240 140, 240 120, 268 120"/>
-      <path d="M212 140 C 240 140, 240 160, 268 160"/>
-    </g>
-    <circle cx="240" cy="140" r="4" fill="#A63A2C"/>
-  </svg>
-  <p>从左侧点选器件放到画布</p>
-  <p class="sub">点输出口再点输入口即可连线</p>
-</div>
+      <svg viewBox="0 0 460 240" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M40 196 H420"/>
+          <rect x="62" y="86" width="150" height="104" rx="6"/>
+          <rect x="76" y="100" width="122" height="62" rx="3"/>
+          <path d="M84 146 h14 v-26 h18 v26 h14 v-26 h18 v26 h14 v-26 h18"/>
+          <circle cx="86" cy="178" r="3"/><circle cx="100" cy="178" r="3"/>
+          <rect x="268" y="104" width="120" height="86" rx="6"/>
+          <rect x="280" y="116" width="96" height="48" rx="3"/>
+          <path d="M286 140 c8 -18 16 -18 24 0 c8 18 16 18 24 0 c8 -18 16 -18 24 0"/>
+          <circle cx="292" cy="178" r="3"/><circle cx="304" cy="178" r="3"/>
+          <path d="M212 140 C 240 140, 240 120, 268 120"/>
+          <path d="M212 140 C 240 140, 240 160, 268 160"/>
+        </g>
+        <circle cx="240" cy="140" r="4" fill="#A63A2C"/>
+      </svg>
+      <p>从左侧点选器件放到画布</p>
+      <p class="sub">点输出口再点输入口即可连线</p>
+    </div>
+    <div id="stageStatus" class="stage-status" aria-live="polite">0 器件 · 0 连线</div>
   </section>
 
-  <aside class="inspector">
-    <h2>属性</h2>
-    <div id="inspectorBody" class="inspector-body">
-      <p class="muted">未选中器件</p>
+  <aside id="inspectorPane" class="pane inspector" aria-label="属性面板">
+    <div class="pane-head">
+      <span class="pane-title">属性</span>
+      <button id="inspectorToggle" class="pane-toggle" type="button" aria-expanded="true" title="收起属性面板" aria-label="收起属性面板">
+        <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m6.5 4 4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="pane-content">
+      <div id="inspectorBody" class="inspector-body">
+        <p class="muted">未选中器件</p>
+      </div>
     </div>
   </aside>
 </main>
 
-<div class="picker" id="picker">
+<section id="dock" class="dock" data-height="36" data-tab="results" aria-label="运行结果面板">
+  <div id="dockProgress" class="dock-progress" hidden><span id="dockProgressBar"></span></div>
+  <div id="dockResize" class="dock-resize" role="separator" aria-orientation="horizontal" aria-label="拖拽调整结果面板高度" title="拖拽调整高度"></div>
+  <div id="dockBar" class="dock-bar">
+    <div class="dock-tabs" role="tablist" aria-label="结果视图">
+      <button id="tabResults" class="dock-tab active" type="button" role="tab" aria-selected="true" data-tab="results">
+        结果<span id="countResults" class="tab-count">0</span>
+      </button>
+      <button id="tabMetrics" class="dock-tab" type="button" role="tab" aria-selected="false" data-tab="metrics">
+        指标<span id="countMetrics" class="tab-count">0</span>
+      </button>
+      <button id="tabLog" class="dock-tab" type="button" role="tab" aria-selected="false" data-tab="log">
+        日志<span id="logDot" class="tab-dot" hidden></span>
+      </button>
+    </div>
+    <div class="dock-status-wrap">
+      <span id="dockStatusDot" class="status-dot" aria-hidden="true"></span>
+      <span id="dockStatus" class="dock-status" aria-live="polite">就绪</span>
+      <span id="dockMeta" class="dock-meta"></span>
+    </div>
+    <div class="dock-actions">
+      <button id="dockCancel" class="btn btn-ghost dock-action" type="button" hidden>取消</button>
+      <button id="dockCollapse" class="dock-icon-btn" type="button" title="折叠到底部状态条" aria-label="折叠结果面板">
+        <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 9 4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button id="dockClose" class="dock-icon-btn" type="button" title="关闭结果面板 (Esc)" aria-label="关闭结果面板">
+        <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m4.5 4.5 7 7m0-7-7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="dockBody" class="dock-body">
+    <section id="paneResults" class="tab-pane active" role="tabpanel" aria-labelledby="tabResults">
+      <div id="resultsEmpty" class="panel-empty">运行后在这里查看图形结果。</div>
+      <div id="resultsGrid" class="results"></div>
+    </section>
+    <section id="paneMetrics" class="tab-pane" role="tabpanel" aria-labelledby="tabMetrics" hidden>
+      <div id="metricsEmpty" class="panel-empty">本题没有 BER 指标</div>
+      <div id="metricsGrid" class="metrics"></div>
+    </section>
+    <section id="paneLog" class="tab-pane" role="tabpanel" aria-labelledby="tabLog" hidden>
+      <div class="log-head">
+        <span class="log-title">运行日志</span>
+        <button id="copyLog" class="btn btn-secondary btn-small" type="button">复制</button>
+      </div>
+      <pre id="logPre" class="log">暂无日志</pre>
+    </section>
+  </div>
+</section>
+
+<button id="dockReopen" class="dock-reopen" type="button" hidden title="打开结果面板 (Ctrl+`)">
+  <span>结果</span><span id="dockReopenCount" class="reopen-count">0</span>
+</button>
+
+<div class="picker" id="picker" role="dialog" aria-modal="true" aria-label="从题库载入">
   <div class="picker-box">
     <div class="picker-head">
-      <input id="pickerSearch" class="search" placeholder="搜索实验" />
-      <button id="pickerClose" class="btn ghost">关闭</button>
+      <div class="picker-title">从题库载入</div>
+      <label class="search-wrap picker-search" for="pickerSearch">
+        <svg class="icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="m10.2 10.2 3 3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input id="pickerSearch" class="search" placeholder="搜索实验或序号" autocomplete="off" />
+      </label>
+      <button id="pickerClose" class="btn btn-ghost" type="button">关闭</button>
     </div>
     <div id="pickerList" class="picker-list"></div>
   </div>
 </div>
 
-<section class="drawer" id="drawer">
-  <div class="drawer-head">
-    <button id="drawerToggle" class="drawer-toggle">运行结果</button>
-    <span id="drawerStatus" class="drawer-status"></span>
+<dialog id="confirmDialog" class="ui-dialog">
+  <form method="dialog" class="dialog-card">
+    <div class="dialog-kicker">清空电路</div>
+    <h2>确定清空当前电路？</h2>
+    <p>画布上的器件、连线和本次结果都会被移除。此操作不可撤销。</p>
+    <div class="dialog-actions">
+      <button id="confirmCancel" class="btn btn-secondary" type="button">取消</button>
+      <button id="confirmClear" class="btn btn-danger" type="button">清空</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="svgDialog" class="ui-dialog">
+  <div class="dialog-card">
+    <div class="dialog-head">
+      <div>
+        <div class="dialog-kicker">导出 SVG</div>
+        <h2>选择要导出的结果图</h2>
+      </div>
+      <button id="svgDialogClose" class="dock-icon-btn" type="button" aria-label="关闭">×</button>
+    </div>
+    <div id="svgDialogList" class="svg-list"></div>
   </div>
-  <div id="drawerBody" class="drawer-body"></div>
-</section>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<input id="clabFile" type="file" accept=".clab,.json,application/json" hidden />
 
 <script src="icons.js"></script>
 <script src="device-icons.js"></script>

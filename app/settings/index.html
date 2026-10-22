@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; script-src 'self'" />
+  <title>设置 · CommLab Studio</title>
+  <link rel="stylesheet" href="settings.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">CL</span>
+        <div>
+          <strong>CommLab Studio</strong>
+          <span>设置</span>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="设置分区">
+        <button class="nav-item is-active" type="button" data-section="appearance">
+          <span class="nav-no">01</span><span>外观</span>
+        </button>
+        <button class="nav-item" type="button" data-section="simulation">
+          <span class="nav-no">02</span><span>仿真</span>
+        </button>
+        <button class="nav-item" type="button" data-section="report">
+          <span class="nav-no">03</span><span>报告</span>
+        </button>
+        <button class="nav-item" type="button" data-section="update">
+          <span class="nav-no">04</span><span>更新</span>
+        </button>
+        <button class="nav-item" type="button" data-section="advanced">
+          <span class="nav-no">05</span><span>高级</span>
+        </button>
+        <button class="nav-item" type="button" data-section="about">
+          <span class="nav-no">06</span><span>关于</span>
+        </button>
+      </nav>
+
+      <div class="rail-foot">
+        <span class="status-dot" id="nativeDot" aria-hidden="true"></span>
+        <div>
+          <strong id="nativeFoot">内置仿真</strong>
+          <span id="nativeFootDetail">检查中…</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="page-head">
+        <div>
+          <p class="kicker">CommLab Studio / Settings</p>
+          <h1>设置</h1>
+          <p class="lede">内置 native 是产品默认引擎；外部引擎只作为老版兼容的可选连接。</p>
+        </div>
+        <button id="saveBtn" class="btn btn-primary" type="button">保存设置</button>
+      </header>
+      <p class="save-state" id="saveState" aria-live="polite">设置保存在本机 userData/settings.json。</p>
+
+      <form id="settingsForm" autocomplete="off">
+        <section class="section is-active" data-panel="appearance" aria-labelledby="appearanceTitle">
+          <div class="section-head">
+            <p class="section-kicker">01 / Appearance</p>
+            <h2 id="appearanceTitle">外观</h2>
+            <p>保持纸色、墨色与朱红强调；主题会同步到主窗口与工作台。</p>
+          </div>
+
+          <div class="card">
+            <div class="row">
+              <div class="row-copy">
+                <span class="row-label">主题</span>
+                <p>跟随系统时，会随 Windows 的深浅色设置切换。</p>
+              </div>
+              <div class="segmented" role="radiogroup" aria-label="主题">
+                <button type="button" data-theme-choice="auto" role="radio">跟随系统</button>
+                <button type="button" data-theme-choice="light" role="radio">日间</button>
+                <button type="button" data-theme-choice="dark" role="radio">夜间</button>
+              </div>
+            </div>
+            <div class="row">
+              <div class="row-copy">
+                <span class="row-label">减少动效</span>
+                <p>关闭界面过渡与结果图淡入，适合长时间阅读或低性能设备。</p>
+              </div>
+              <label class="switch">
+                <input id="reducedMotion" type="checkbox" />
+                <span class="switch-track" aria-hidden="true"></span>
+                <span class="switch-label" id="reducedMotionLabel">关闭</span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" data-panel="simulation" aria-labelledby="simulationTitle" hidden>
+          <div class="section-head">
+            <p class="section-kicker">02 / Simulation</p>
+            <h2 id="simulationTitle">仿真</h2>
+            <p>默认使用内置 native，无需安装或启动任何外部程序。</p>
+          </div>
+
+          <div class="native-card">
+            <div class="native-badge" id="nativeBadge">38/38</div>
+            <div class="native-copy">
+              <span class="row-label">内置 native 仿真</span>
+              <p id="nativeDetail">正在读取覆盖率…</p>
+            </div>
+            <span class="status-chip ok" id="nativeChip">默认引擎</span>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>外部引擎（可选）</h3>
+                <p>仅供老版实验台兼容模式使用；未连接不影响内置 native。</p>
+              </div>
+              <span class="optional-tag">OPTIONAL</span>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>主机</span>
+                <input id="engineHost" type="text" spellcheck="false" placeholder="127.0.0.1" />
+              </label>
+              <label class="field">
+                <span>端口</span>
+                <input id="enginePort" type="number" min="1" max="65535" inputmode="numeric" placeholder="9002" />
+              </label>
+            </div>
+
+            <label class="field">
+              <span>引擎程序路径</span>
+              <span class="input-row">
+                <input id="engineExe" type="text" spellcheck="false" placeholder="选择本机外部引擎程序（可选）" />
+                <button id="browseEngine" class="btn btn-secondary" type="button">选择…</button>
+              </span>
+            </label>
+
+            <div class="actions">
+              <button id="testEngine" class="btn btn-secondary" type="button">测试连接</button>
+              <span class="inline-status" id="engineState" aria-live="polite">尚未测试</span>
+            </div>
+            <div class="result-box" id="engineResult" hidden></div>
+            <p class="note">未连接不影响使用。日常仿真、38 道实验与新版工作台都走内置 native。</p>
+          </div>
+
+          <details class="diagnostics">
+            <summary>环境诊断 <span>仅供排查兼容模式</span></summary>
+            <div class="diagnostics-head">
+              <p>检查外部引擎、兼容实验台与内置 native 的当前状态。</p>
+              <button id="runDiagnostics" class="btn btn-ghost" type="button">重新检测</button>
+            </div>
+            <div class="diagnostics-list" id="diagnosticsList" aria-live="polite">
+              <p class="muted-line">展开后开始检测。</p>
+            </div>
+          </details>
+        </section>
+
+        <section class="section" data-panel="report" aria-labelledby="reportTitle" hidden>
+          <div class="section-head">
+            <p class="section-kicker">03 / Report</p>
+            <h2 id="reportTitle">报告</h2>
+            <p>用于报告封面与默认导出位置。本轮只保存设置，导出流程后续接入。</p>
+          </div>
+
+          <div class="card">
+            <div class="field-grid">
+              <label class="field">
+                <span>学校</span>
+                <input id="reportSchool" type="text" placeholder="学校名称" />
+              </label>
+              <label class="field">
+                <span>班级</span>
+                <input id="reportClass" type="text" placeholder="班级" />
+              </label>
+              <label class="field">
+                <span>学号</span>
+                <input id="reportStudentId" type="text" spellcheck="false" placeholder="学号" />
+              </label>
+              <label class="field">
+                <span>姓名</span>
+                <input id="reportStudentName" type="text" placeholder="姓名" />
+              </label>
+            </div>
+
+            <label class="field">
+              <span>默认导出目录</span>
+              <span class="input-row">
+                <input id="reportExportDir" type="text" spellcheck="false" placeholder="选择默认导出目录" />
+                <button id="browseExportDir" class="btn btn-secondary" type="button">选择…</button>
+              </span>
+            </label>
+            <p class="note">报告导出接入后，将优先使用这里的目录；当前不影响现有导出对话框。</p>
+          </div>
+        </section>
+
+        <section class="section" data-panel="update" aria-labelledby="updateTitle" hidden>
+          <div class="section-head">
+            <p class="section-kicker">04 / Update</p>
+            <h2 id="updateTitle">更新</h2>
+            <p>检查 GitHub Release 或源码仓库的新版本。</p>
+          </div>
+
+          <div class="card">
+            <div class="update-version">
+              <div>
+                <span class="row-label">当前版本</span>
+                <p class="version-number" id="currentVersion">v—</p>
+              </div>
+              <button id="checkUpdate" class="btn btn-secondary" type="button">检查更新</button>
+            </div>
+            <div class="result-box" id="updateResult" hidden></div>
+            <p class="note">更新检查复用现有 updater API；失败不会影响当前实验。</p>
+          </div>
+        </section>
+
+        <section class="section" data-panel="advanced" aria-labelledby="advancedTitle" hidden>
+          <div class="section-head">
+            <p class="section-kicker">05 / Advanced</p>
+            <h2 id="advancedTitle">高级</h2>
+            <p>兼容入口与本机数据位置。普通使用无需调整。</p>
+          </div>
+
+          <div class="card">
+            <div class="row">
+              <div class="row-copy">
+                <span class="row-label">老版实验台</span>
+                <p>仅在已配置外部引擎与兼容实验台时可用；不属于日常流程。</p>
+              </div>
+              <button id="openOldLab" class="btn btn-secondary" type="button">打开老版实验台</button>
+            </div>
+            <div class="result-box" id="oldLabResult" hidden></div>
+          </div>
+
+          <div class="card">
+            <div class="path-row">
+              <div>
+                <span class="row-label">数据目录</span>
+                <code id="dataDir">—</code>
+              </div>
+              <button id="openDataDir" class="btn btn-ghost" type="button">打开</button>
+            </div>
+            <div class="path-row">
+              <div>
+                <span class="row-label">日志目录</span>
+                <code id="logsDir">—</code>
+              </div>
+              <button id="openLogs" class="btn btn-ghost" type="button">打开</button>
+            </div>
+            <div class="path-row">
+              <div>
+                <span class="row-label">设置文件</span>
+                <code id="settingsPath">—</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="card danger-card">
+            <div class="row">
+              <div class="row-copy">
+                <span class="row-label">恢复默认</span>
+                <p>清除 settings.json，外观、外部引擎与报告信息恢复默认；不会删除课程包或运行结果。</p>
+              </div>
+              <button id="resetSettings" class="btn btn-danger" type="button">恢复默认</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" data-panel="about" aria-labelledby="aboutTitle" hidden>
+          <div class="section-head">
+            <p class="section-kicker">06 / About</p>
+            <h2 id="aboutTitle">关于</h2>
+            <p>通信原理虚拟仿真实验的教学与仿真工作台。</p>
+          </div>
+
+          <div class="about-card">
+            <div class="about-mark" aria-hidden="true">CL</div>
+            <div class="about-copy">
+              <h3>CommLab Studio</h3>
+              <p>纸质实验讲义 + 精密仪器面板。内置 native 覆盖 38/38 个实验，不依赖 Rainier、9002 或 vlab_offline。</p>
+              <div class="about-meta">
+                <span>版本 <strong id="aboutVersion">—</strong></span>
+                <span>许可 <strong>MIT</strong></span>
+                <span>内置仿真 <strong id="aboutNative">38/38</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="row">
+              <div class="row-copy">
+                <span class="row-label">GitHub</span>
+                <p>查看源码、问题与版本记录。</p>
+              </div>
+              <button id="openGithub" class="btn btn-secondary" type="button">打开仓库</button>
+            </div>
+          </div>
+        </section>
+      </form>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script src="settings.js"></script>
+</body>
+</html>

@@ -2,19 +2,38 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CommLab Studio</title>
-<link rel="stylesheet" href="style.css?v=16" />
+<link rel="stylesheet" href="style.css?v=17" />
 </head>
 <body>
 <div id="updateBar" class="update-bar hide">
   <span class="update-dot"></span>
   <span id="updateText">发现新版本</span>
-  <button id="updateGo" class="update-go">一键更新</button>
-  <button id="updateLater" class="update-x" title="稍后再说" aria-label="稍后再说">×</button>
+  <button id="updateGo" class="btn btn-secondary btn-small" type="button">一键更新</button>
+  <button id="updateLater" class="update-x" type="button" title="稍后再说" aria-label="稍后再说">×</button>
 </div>
-<aside class="toc">
-  <div class="toc-head">
-    <button id="theme" class="theme-btn" title="切换日间 / 夜间" aria-label="切换主题">
+
+<header class="app-header">
+  <button id="brandHome" class="brand" type="button" aria-label="返回课程库">
+    <span class="brand-word">CommLab <span>Studio</span></span>
+  </button>
+
+  <div id="searchBox" class="search-box">
+    <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="10.8" cy="10.8" r="6.4"></circle>
+      <path d="M15.6 15.6 21 21"></path>
+    </svg>
+    <input id="search" type="search" placeholder="搜索模块、实验号或器件" autocomplete="off" spellcheck="false"
+           aria-label="搜索课程库" aria-controls="searchPanel" aria-expanded="false" />
+    <kbd aria-hidden="true">/</kbd>
+    <div id="searchPanel" class="search-panel" role="listbox" aria-label="搜索结果" hidden></div>
+  </div>
+
+  <nav class="top-nav" aria-label="全局导航">
+    <button id="navLibrary" class="nav-btn is-active" type="button">课程库</button>
+    <button id="navWorkbench" class="nav-btn" type="button">工作台</button>
+    <button id="theme" class="icon-btn theme-btn" type="button" title="切换日间 / 夜间" aria-label="切换主题">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <circle class="sun" cx="12" cy="12" r="4.2"></circle>
         <g class="rays">
@@ -23,77 +42,135 @@
         <path class="moon" d="M20 14.2A8.2 8.2 0 0 1 9.8 4a8.4 8.4 0 1 0 10.2 10.2z"></path>
       </svg>
     </button>
-    <h1>CommLab Studio</h1>
-    <p class="sub">通信原理虚拟仿真实验</p>
-  </div>
+    <button id="btnSettings" class="nav-btn" type="button">设置</button>
+  </nav>
+</header>
 
-  <div class="search-wrap">
-    <input id="search" type="search" placeholder="搜索实验或器件" autocomplete="off" spellcheck="false" />
-  </div>
+<main class="app-main">
+  <section id="libraryView" class="view library-view" aria-label="课程库">
+    <div id="libraryScroll" class="library-scroll">
+      <div class="library-inner">
+        <div id="libraryHome">
+          <header class="library-head">
+            <div class="library-heading">
+              <p class="eyebrow">通信原理 · 虚拟仿真实验</p>
+              <h1>课程库</h1>
+              <p class="library-lead">按课程模块进入实验，阅读讲义，运行内置仿真。</p>
+            </div>
+            <div class="library-stats" aria-label="课程库概览">
+              <div class="stat"><span id="statModules" class="stat-number">7</span><span class="stat-label">课程模块</span></div>
+              <div class="stat"><span id="statExperiments" class="stat-number">38</span><span class="stat-label">实验</span></div>
+              <div class="stat"><span id="statRead" class="stat-number">0</span><span class="stat-label">已读</span></div>
+            </div>
+          </header>
 
-  <div class="act">
-    <button id="btnRun" class="lab-btn">运行仿真</button>
-    <button id="btnReport" class="lab-btn report">导出实验报告 PDF</button>
-    <button id="btnWorkbench" class="lab-btn">新版实验台</button>
-    <button id="btnLab" class="lab-btn ghost">老版实验台</button>
-  </div>
-  <div class="cp-strip" aria-live="polite">
-    <span id="cpState" class="cp-state">课程包：未导入</span>
-    <span class="cp-actions">
-      <button id="btnCoursepack" class="cp-mini" type="button">导入</button>
-      <button id="btnCoursepackClear" class="cp-mini cp-clear hide" type="button">清除</button>
-    </span>
-  </div>
+          <div id="continueMount" class="continue-mount"></div>
 
-  <p class="toc-count" id="count"></p>
-  <ol id="list" class="list"></ol>
-  <div class="toc-foot">
-    <a class="gh-link" href="https://github.com/B-LIPSTICK/commlab-studio-public" target="_blank" rel="noreferrer"
-       title="打开 GitHub 仓库" aria-label="GitHub 仓库">
-      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
-      <span>GitHub</span>
-    </a>
-  </div>
-</aside>
+          <div class="library-tools">
+            <div class="coursepack-control">
+              <span id="cpState" class="cp-state">课程包：未导入</span>
+              <button id="btnCoursepack" class="btn btn-ghost btn-small" type="button">导入</button>
+              <button id="btnCoursepackClear" class="btn btn-ghost btn-small cp-clear hide" type="button">清除</button>
+            </div>
+            <span class="library-tools-note">课程原文与平台脚本可按需导入</span>
+          </div>
 
-<main class="stage">
-  <section id="envPanel" class="env-panel" aria-labelledby="envTitle">
-    <div class="env-head">
-      <div class="env-heading">
-        <span class="env-kicker">首次运行检查</span>
-        <h2 id="envTitle">环境状态</h2>
-      </div>
-      <div class="env-actions">
-        <span id="envSummary" class="env-summary" aria-live="polite">检测中…</span>
-        <button id="envRefresh" class="env-refresh" type="button">重新检测</button>
-        <button id="envToggle" class="env-toggle" type="button" aria-expanded="true">收起</button>
+          <div class="section-head">
+            <h2>课程模块</h2>
+            <span id="moduleCount" class="section-count">共 7 个模块</span>
+          </div>
+          <div id="moduleGrid" class="module-grid" aria-live="polite"></div>
+        </div>
+
+        <div id="moduleDetail" class="module-detail" hidden></div>
       </div>
     </div>
-    <div id="envRoutes" class="env-routes" aria-live="polite"></div>
-    <div id="envList" class="env-grid" aria-live="polite">
-      <p class="env-loading">正在检查引擎、9002 端口、实验台和 vlab_offline…</p>
-    </div>
-    <p class="env-note">公开安装包不包含 Rainier 引擎、<code>.m</code>、vlab_offline 或学校课程图片。路径 A 需本机已有学校客户端；路径 B 为内置自研 native 内核，当前可用（38/38），不依赖 Rainier。</p>
   </section>
 
-  <header class="doc-head">
-    <h2 id="title">选择左侧实验</h2>
-    <p id="meta" class="meta"></p>
-    <nav class="doc-nav" id="tabs">
-      <button data-tab="req" class="on">实验要求</button>
-      <button data-tab="chain">器件与连线</button>
-      <button data-tab="script">平台脚本</button>
-        <button data-tab="run">运行结果</button>
-    </nav>
-  </header>
+  <section id="readerView" class="view reader-view" aria-label="实验阅读" hidden>
+    <div id="readerShell" class="reader-shell">
+      <aside id="tocDrawer" class="toc-drawer" aria-label="实验目录" aria-hidden="true">
+        <div class="drawer-head">
+          <span class="drawer-title">实验目录</span>
+          <div class="drawer-actions">
+            <button id="pinToc" class="icon-btn pin-btn" type="button" title="固定目录" aria-label="固定目录" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6M12 4v6l4 4v2H8v-2l4-4V4M12 16v4"></path></svg>
+            </button>
+            <button id="closeToc" class="icon-btn" type="button" title="关闭目录" aria-label="关闭目录">×</button>
+          </div>
+        </div>
+        <div id="drawerList" class="drawer-body"></div>
+      </aside>
 
-  <section class="body">
-    <article id="pane-req" class="pane on doc"></article>
-    <div id="pane-chain" class="pane"></div>
-    <div id="pane-script" class="pane"><pre id="script"></pre></div>
-    <div id="pane-run" class="pane"><div id="run-body"></div></div>
+      <button id="drawerScrim" class="drawer-scrim" type="button" aria-label="关闭目录" tabindex="-1"></button>
+
+      <div id="readerMain" class="reader-main">
+        <header class="reader-top">
+          <nav class="breadcrumb" aria-label="面包屑">
+            <button id="crumbLibrary" class="crumb-link" type="button">课程库</button>
+            <span class="crumb-sep">/</span>
+            <button id="crumbModule" class="crumb-link" type="button">模块</button>
+            <span class="crumb-sep">/</span>
+            <span id="crumbTitle" class="crumb-current">实验</span>
+          </nav>
+          <div class="reader-actions">
+            <button id="tocToggle" class="btn btn-ghost" type="button" aria-controls="tocDrawer" aria-expanded="false">目录</button>
+            <button id="btnRun" class="btn btn-primary" type="button">运行仿真</button>
+            <button id="btnReport" class="btn btn-secondary" type="button">导出报告</button>
+            <div id="moreWrap" class="more-wrap">
+              <button id="btnMore" class="btn btn-ghost" type="button" aria-haspopup="menu" aria-expanded="false">
+                更多 <span class="chevron" aria-hidden="true">⌄</span>
+              </button>
+              <div id="moreMenu" class="more-menu" role="menu" hidden>
+                <button class="menu-item" type="button" role="menuitem" data-more="workbench">在新工作台打开</button>
+                <button class="menu-item" type="button" role="menuitem" data-more="platform">查看平台原页</button>
+                <button class="menu-item" type="button" role="menuitem" data-more="copy">复制实验脚本</button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div id="readerScroll" class="reader-scroll">
+          <div class="doc-column">
+            <header class="doc-head">
+              <p id="readerKicker" class="doc-kicker"></p>
+              <h2 id="title">选择实验</h2>
+              <p id="meta" class="meta"></p>
+              <nav class="doc-nav" id="tabs" aria-label="实验内容">
+                <button data-tab="req" class="on" type="button">实验要求</button>
+                <button data-tab="chain" type="button">器件与连线</button>
+                <button data-tab="script" type="button">平台脚本</button>
+                <button data-tab="run" type="button">运行结果</button>
+              </nav>
+            </header>
+
+            <section class="body" id="docBody">
+              <article id="pane-req" class="pane on doc"></article>
+              <div id="pane-chain" class="pane"></div>
+              <div id="pane-script" class="pane"><pre id="script"></pre></div>
+              <div id="pane-run" class="pane"><div id="run-body"></div></div>
+            </section>
+
+            <nav class="reader-pager" aria-label="实验导航">
+              <button id="prevExp" class="pager-link" type="button">← 上一实验</button>
+              <button id="nextExp" class="pager-link" type="button">下一实验 →</button>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 </main>
+
+<footer class="app-footer">
+  <button id="statusDot" class="status-dot" type="button" title="打开设置">
+    <span class="status-light" aria-hidden="true"></span>
+    <span id="statusText">内置仿真 · 就绪</span>
+  </button>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
 <script src="docfix.js"></script>
 <script src="docfigs.js"></script>
 <script src="app.js"></script>

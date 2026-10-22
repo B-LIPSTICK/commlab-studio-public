@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, Menu, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, shell, Menu, dialog, nativeTheme } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const net = require("net");
@@ -40,6 +40,7 @@ if (process.env.COMMLAB_USER_DATA) {
   app.setPath("userData", path.resolve(process.env.COMMLAB_USER_DATA));
 }
 const COURSEPACK_DIR = path.join(app.getPath("userData"), "course-pack");
+const SETTINGS_PATH = path.join(app.getPath("userData"), "settings.json");
 
 // Packaged builds run from a read-only app.asar. Keep generated run files in
 // userData, while preserving the historical dev-mode _out directory.
@@ -60,6 +61,141 @@ const DEFAULT_CONFIG = {
 function readConfig() {
   try { return { ...DEFAULT_CONFIG, ...JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8")) }; }
   catch { return { ...DEFAULT_CONFIG }; }
+}
+
+const SETTINGS_VERSION = 1;
+const THEMES = new Set(["auto", "light", "dark"]);
+
+function getLogsDir() {
+  try { return app.getPath("logs"); }
+  catch { return path.join(app.getPath("userData"), "logs"); }
+}
+
+function defaultSettings() {
+  const cfg = readConfig();
+  let exportDir = "";
+  try { exportDir = app.getPath("documents"); } catch {}
+  return {
+    schemaVersion: SETTINGS_VERSION,
+    appearance: {
+      theme: "auto",
+      reducedMotion: false,
+    },
+    simulation: {
+      externalEngine: {
+        host: "127.0.0.1",
+        port: 9002,
+        exe: cfg.engineExe || DEFAULT_CONFIG.engineExe || "",
+      },
+    },
+    report: {
+      school: "",
+      className: "",
+      studentId: "",
+      studentName: "",
+      exportDir,
+    },
+  };
+}
+
+function cleanSettingText(value, maxLength = 512) {
+  return String(value == null ? "" : value).trim().slice(0, maxLength);
+}
+
+function cleanSettingPort(value, fallback) {
+  const port = Number(value);
+  return Number.isInteger(port) && port > 0 && port <= 65535 ? port : fallback;
+}
+
+function normalizeSettings(input, base) {
+  const fallback = base || defaultSettings();
+  const source = input && typeof input === "object" ? input : {};
+  const appearance = source.appearance && typeof source.appearance === "object" ? source.appearance : {};
+  const simulation = source.simulation && typeof source.simulation === "object" ? source.simulation : {};
+  const external = simulation.externalEngine && typeof simulation.externalEngine === "object"
+    ? simulation.externalEngine
+    : {};
+  const report = source.report && typeof source.report === "object" ? source.report : {};
+  return {
+    schemaVersion: SETTINGS_VERSION,
+    appearance: {
+      theme: THEMES.has(appearance.theme) ? appearance.theme : fallback.appearance.theme,
+      reducedMotion: typeof appearance.reducedMotion === "boolean"
+        ? appearance.reducedMotion
+        : fallback.appearance.reducedMotion,
+    },
+    simulation: {
+      externalEngine: {
+        host: Object.prototype.hasOwnProperty.call(external, "host")
+          ? cleanSettingText(external.host, 255)
+          : fallback.simulation.externalEngine.host,
+        port: Object.prototype.hasOwnProperty.call(external, "port")
+          ? cleanSettingPort(external.port, fallback.simulation.externalEngine.port)
+          : fallback.simulation.externalEngine.port,
+        exe: Object.prototype.hasOwnProperty.call(external, "exe")
+          ? cleanSettingText(external.exe, 1024)
+          : fallback.simulation.externalEngine.exe,
+      },
+    },
+    report: {
+      school: Object.prototype.hasOwnProperty.call(report, "school")
+        ? cleanSettingText(report.school, 120)
+        : fallback.report.school,
+      className: Object.prototype.hasOwnProperty.call(report, "className")
+        ? cleanSettingText(report.className, 120)
+        : fallback.report.className,
+      studentId: Object.prototype.hasOwnProperty.call(report, "studentId")
+        ? cleanSettingText(report.studentId, 64)
+        : fallback.report.studentId,
+      studentName: Object.prototype.hasOwnProperty.call(report, "studentName")
+        ? cleanSettingText(report.studentName, 80)
+        : fallback.report.studentName,
+      exportDir: Object.prototype.hasOwnProperty.call(report, "exportDir")
+        ? cleanSettingText(report.exportDir, 1024)
+        : fallback.report.exportDir,
+    },
+  };
+}
+
+function readSettings() {
+  const fallback = defaultSettings();
+  try {
+    const raw = JSON.parse(fs.readFileSync(SETTINGS_PATH, "utf8"));
+    return normalizeSettings(raw, fallback);
+  } catch {
+    return fallback;
+  }
+}
+
+function writeSettings(next) {
+  const settings = normalizeSettings(next, readSettings());
+  fs.mkdirSync(path.dirname(SETTINGS_PATH), { recursive: true });
+  const tmp = SETTINGS_PATH + "." + process.pid + "." + Date.now() + ".tmp";
+  fs.writeFileSync(tmp, JSON.stringify(settings, null, 2) + "\n", "utf8");
+  try {
+    fs.renameSync(tmp, SETTINGS_PATH);
+  } catch (err) {
+    try { fs.rmSync(SETTINGS_PATH, { force: true }); } catch {}
+    try { fs.renameSync(tmp, SETTINGS_PATH); }
+    catch (retryErr) {
+      try { fs.rmSync(tmp, { force: true }); } catch {}
+      throw retryErr;
+    }
+  }
+  return settings;
+}
+
+function settingsMeta() {
+  return {
+    version: app.getVersion(),
+    name: app.getName(),
+    settingsPath: SETTINGS_PATH,
+    configPath: CONFIG_PATH,
+    dataDir: app.getPath("userData"),
+    logsDir: getLogsDir(),
+    license: "MIT",
+    github: "https://github.com/B-LIPSTICK/commlab-studio-public",
+  };
 }
 
 function readReportCover() {
@@ -695,41 +831,48 @@ function readNativeCoverage() {
 
 async function checkEnvironment() {
   const cfg = readConfig();
+  const settings = readSettings();
+  const external = settings.simulation.externalEngine;
+  const engineHost = external.host || "127.0.0.1";
+  const enginePortNumber = external.port || 9002;
   const [enginePort, labReachable] = await Promise.all([
-    portOpen(9002, "127.0.0.1", 800),
+    portOpen(enginePortNumber, engineHost, 800),
     httpOk(cfg.labUrl, 1600),
   ]);
-  const engineExists = fs.existsSync(cfg.engineExe);
+  let engineExists = false;
+  if (external.exe) {
+    try { engineExists = fs.statSync(external.exe).isFile(); } catch {}
+  }
   const labRootExists = fs.existsSync(cfg.labRoot);
 
   const items = [
     {
       id: "engineExe",
-      label: "Rainier 引擎",
+      label: "外部引擎程序",
       ok: engineExists,
-      detail: cfg.engineExe || "未配置",
-      hint: "路径 A：安装或解压本机学校客户端 Rainier OWVLabCRTE，确保 com_rainier_osgi_gui.exe 存在；公开安装包不附带引擎。",
+      detail: external.exe || "未配置",
+      hint: "外部引擎（可选）：如需兼容模式，请选择本机学校客户端引擎程序；内置 native 不依赖此项。",
     },
     {
       id: "enginePort",
-      label: "引擎端口 9002",
+      label: "外部引擎端口",
       ok: enginePort,
-      detail: enginePort ? "127.0.0.1:9002 已监听" : "127.0.0.1:9002 未监听",
-      hint: "路径 A：先手动启动学校客户端引擎；若已启动仍失败，检查防火墙或端口占用。",
+      detail: `${engineHost}:${enginePortNumber} ${enginePort ? "已监听" : "未监听"}`,
+      hint: "外部引擎（可选）：先手动启动外部引擎；未连接不影响内置 native 使用。",
     },
     {
       id: "labUrl",
-      label: "实验台服务 8766",
+      label: "兼容实验台服务",
       ok: labReachable,
       detail: cfg.labUrl || "未配置",
-      hint: "路径 A：启动本机学校客户端的实验台服务（默认 127.0.0.1:8766）；公开安装包不附带实验台。",
+      hint: "仅老版实验台需要；内置 native 与新版工作台不依赖此服务。",
     },
     {
       id: "labRoot",
-      label: "vlab_offline",
+      label: "兼容数据目录",
       ok: labRootExists,
       detail: cfg.labRoot || "未配置",
-      hint: "路径 A：将本机学校客户端的 vlab_offline/rainier_v2 放到该目录；公开仓库不包含 vlab_offline。",
+      hint: "仅老版实验台需要；公开安装包不附带学校课程数据。",
     },
   ];
   const missing = items.filter((x) => !x.ok);
@@ -742,30 +885,31 @@ async function checkEnvironment() {
     nativeReady,
     native,
     checkedAt: new Date().toISOString(),
-    summary: schoolReady ? "学校客户端与 native 内核可用" : `路径 B 可用 · 学校客户端缺少 ${missing.length} 项`,
+    summary: schoolReady ? "内置仿真与外部引擎均可用" : `内置仿真可用 · 外部引擎（可选）缺少 ${missing.length} 项`,
     items,
     missing: missing.map((x) => x.label),
     paths: [
       {
         id: "school",
-        label: "路径 A · 本机学校客户端",
+        label: "外部引擎（可选）",
         ok: schoolReady,
-        status: schoolReady ? "可用" : "未就绪",
+        status: schoolReady ? "可用" : "未连接",
         detail: schoolReady
-          ? "Rainier 引擎、9002、8766 实验台和 vlab_offline 均已检测到，可直接使用。"
-          : "未检测到完整的本机学校客户端环境。",
-        hint: schoolReady ? "" : "按下方缺失项安装/启动本机学校客户端；公开安装包不附带这些文件。",
+          ? "外部引擎与兼容实验台均已检测到，可用于老版兼容模式。"
+          : "未检测到完整的外部引擎环境；内置 native 仍可正常使用。",
+        hint: schoolReady ? "" : "需要老版兼容模式时再配置；日常仿真无需处理。",
       },
       {
         id: "native",
-        label: "路径 B · 自研 native 内核",
+        label: "内置 native",
         ok: nativeReady,
         status: native.status,
         detail: native.detail,
-        hint: "路径 B 不依赖 Rainier / 9002 / 8766，可在学校客户端缺失时直接运行。",
+        hint: "产品默认引擎，不依赖任何外部程序。",
       },
     ],
     configPath: CONFIG_PATH,
+    settingsPath: SETTINGS_PATH,
   };
 }
 
@@ -856,6 +1000,176 @@ async function openLab(graph) {
   return { ok: true, warnings: built ? built.warnings : [] };
 }
 
+const reducedMotionCssKeys = new WeakMap();
+
+function applyWindowAppearance(win, settings) {
+  if (!win || win.isDestroyed()) return;
+  const wc = win.webContents;
+  if (!wc || wc.isDestroyed()) return;
+  const reduced = !!(settings && settings.appearance && settings.appearance.reducedMotion);
+  const previous = reducedMotionCssKeys.get(wc);
+  if (!reduced) {
+    if (previous) {
+      wc.removeInsertedCSS(previous).catch(() => {});
+      reducedMotionCssKeys.delete(wc);
+    }
+    return;
+  }
+  if (previous) return;
+  wc.insertCSS(
+    "html{scroll-behavior:auto!important}" +
+    "*,*::before,*::after{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}"
+  ).then((key) => {
+    if (!wc.isDestroyed()) reducedMotionCssKeys.set(wc, key);
+  }).catch(() => {});
+}
+
+function applyGlobalAppearance(settings) {
+  const appearance = settings && settings.appearance ? settings.appearance : { theme: "auto", reducedMotion: false };
+  const theme = appearance.theme || "auto";
+  nativeTheme.themeSource = theme === "light" || theme === "dark" ? theme : "system";
+  for (const win of BrowserWindow.getAllWindows()) {
+    applyWindowAppearance(win, settings);
+    if (!win.isDestroyed() && win.webContents && !win.webContents.isDestroyed()) {
+      win.webContents.send("settings:appearance", {
+        theme,
+        reducedMotion: !!appearance.reducedMotion,
+      });
+    }
+  }
+}
+
+function watchWindowAppearance(win) {
+  if (!win || win.isDestroyed()) return;
+  win.webContents.on("did-finish-load", () => applyWindowAppearance(win, readSettings()));
+  applyWindowAppearance(win, readSettings());
+}
+
+async function testExternalEngine(payload = {}) {
+  const current = readSettings().simulation.externalEngine;
+  const has = (key) => payload && Object.prototype.hasOwnProperty.call(payload, key);
+  const hostValue = cleanSettingText(has("host") ? payload.host : current.host, 255);
+  const host = hostValue || "127.0.0.1";
+  const rawPort = has("port") ? payload.port : current.port;
+  const port = Number(rawPort);
+  const exe = has("exe") ? cleanSettingText(payload.exe, 1024) : current.exe;
+  const checkedAt = new Date().toISOString();
+  if (!hostValue) {
+    return {
+      ok: false,
+      connected: false,
+      host,
+      port: Number.isInteger(port) ? port : null,
+      exe,
+      exeConfigured: Boolean(exe),
+      exeExists: false,
+      message: "未连接：主机不能为空",
+      checks: [],
+      nativeUnaffected: true,
+      checkedAt,
+    };
+  }
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    return {
+      ok: false,
+      connected: false,
+      host,
+      port: null,
+      exe,
+      exeConfigured: Boolean(exe),
+      exeExists: false,
+      message: "未连接：端口必须是 1–65535 的整数",
+      checks: [],
+      nativeUnaffected: true,
+      checkedAt,
+    };
+  }
+
+  let portOk = false;
+  try { portOk = await portOpen(port, host, 1200); } catch {}
+  const exeConfigured = Boolean(exe);
+  let exeExists = false;
+  if (exeConfigured) {
+    try { exeExists = fs.statSync(exe).isFile(); } catch {}
+  }
+  const exeOk = !exeConfigured || exeExists;
+  const ok = portOk && exeOk;
+  const checks = [
+    {
+      id: "port",
+      label: "端口连接",
+      ok: portOk,
+      detail: portOk ? `${host}:${port} 已监听` : `${host}:${port} 未监听`,
+    },
+    {
+      id: "exe",
+      label: "引擎程序",
+      ok: exeOk,
+      optional: !exeConfigured,
+      detail: exeConfigured ? (exeExists ? exe : "文件不存在：" + exe) : "未配置（仅使用端口连接）",
+    },
+  ];
+
+  let message;
+  if (ok) message = `外部引擎已连接（${host}:${port}）`;
+  else if (!portOk && !exeOk) message = `未连接：${host}:${port} 未监听，且外部引擎程序不存在`;
+  else if (!portOk) message = `未连接：${host}:${port} 未监听（外部引擎未启动）`;
+  else message = `未连接：外部引擎程序不存在（${exe}）`;
+
+  return {
+    ok,
+    connected: portOk,
+    host,
+    port,
+    exe,
+    exeConfigured,
+    exeExists,
+    message,
+    checks,
+    nativeUnaffected: true,
+    checkedAt,
+  };
+}
+
+let settingsWin = null;
+
+async function openSettings() {
+  if (settingsWin && !settingsWin.isDestroyed()) {
+    if (settingsWin.isMinimized()) settingsWin.restore();
+    settingsWin.show();
+    settingsWin.focus();
+    return { ok: true, reused: true };
+  }
+  const win = new BrowserWindow({
+    width: 1060, height: 820, minWidth: 900, minHeight: 620,
+    backgroundColor: "#FCFBF7", title: "设置 · CommLab Studio",
+    autoHideMenuBar: true, show: false,
+    icon: path.join(ROOT, "build", "icon.png"),
+    webPreferences: {
+      preload: path.join(__dirname, "settings", "preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      devTools: !app.isPackaged,
+    },
+  });
+  settingsWin = win;
+  win.on("closed", () => { settingsWin = null; });
+  win.once("ready-to-show", () => { if (!win.isDestroyed()) win.show(); });
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (/^https?:\/\//i.test(url)) shell.openExternal(url);
+    return { action: "deny" };
+  });
+  win.webContents.on("will-navigate", (e, url) => {
+    if (url !== win.webContents.getURL()) {
+      e.preventDefault();
+      if (/^https?:\/\//i.test(url)) shell.openExternal(url);
+    }
+  });
+  watchWindowAppearance(win);
+  await win.loadFile(path.join(__dirname, "settings", "index.html"));
+  return { ok: true };
+}
+
 function queryParams() {
   const q = {};
   if (process.env.COMMLAB_THEME) q.theme = process.env.COMMLAB_THEME;
@@ -875,6 +1189,7 @@ function createWindow() {
   });
   mainWin = win;
   win.on("closed", () => { mainWin = null; });
+  watchWindowAppearance(win);
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https?:\/\//i.test(url)) shell.openExternal(url);
     return { action: "deny" };
@@ -919,6 +1234,68 @@ ipcMain.handle("shell:open", (_e, url) => {
 ipcMain.handle("update:check", () => updater.check());
 ipcMain.handle("update:apply", () => updater.apply());
 ipcMain.handle("environment:check", () => checkEnvironment());
+ipcMain.handle("settings:open", () => openSettings());
+ipcMain.handle("settings:get", () => {
+  try {
+    return { ok: true, settings: readSettings(), defaults: defaultSettings(), meta: settingsMeta() };
+  } catch (err) {
+    return { ok: false, reason: String((err && err.message) || err) };
+  }
+});
+ipcMain.handle("settings:set", (_e, patch) => {
+  try {
+    const settings = writeSettings(patch);
+    applyGlobalAppearance(settings);
+    return { ok: true, settings, meta: settingsMeta() };
+  } catch (err) {
+    return { ok: false, reason: String((err && err.message) || err) };
+  }
+});
+ipcMain.handle("settings:testEngine", (_e, payload) => testExternalEngine(payload || {}));
+ipcMain.handle("settings:reset", () => {
+  try {
+    fs.rmSync(SETTINGS_PATH, { force: true });
+    const settings = defaultSettings();
+    applyGlobalAppearance(settings);
+    return { ok: true, settings, meta: settingsMeta() };
+  } catch (err) {
+    return { ok: false, reason: String((err && err.message) || err) };
+  }
+});
+ipcMain.handle("settings:chooseDirectory", async (e) => {
+  const parent = BrowserWindow.fromWebContents(e.sender);
+  const options = { title: "选择默认导出目录", properties: ["openDirectory", "createDirectory"] };
+  const result = parent && !parent.isDestroyed()
+    ? await dialog.showOpenDialog(parent, options)
+    : await dialog.showOpenDialog(options);
+  if (result.canceled || !result.filePaths.length) return { ok: false, canceled: true };
+  return { ok: true, path: result.filePaths[0] };
+});
+ipcMain.handle("settings:chooseEngine", async (e) => {
+  const parent = BrowserWindow.fromWebContents(e.sender);
+  const options = {
+    title: "选择外部引擎程序",
+    properties: ["openFile"],
+    filters: [{ name: "可执行程序", extensions: ["exe"] }],
+  };
+  const result = parent && !parent.isDestroyed()
+    ? await dialog.showOpenDialog(parent, options)
+    : await dialog.showOpenDialog(options);
+  if (result.canceled || !result.filePaths.length) return { ok: false, canceled: true };
+  return { ok: true, path: result.filePaths[0] };
+});
+ipcMain.handle("settings:openDataDir", async () => {
+  const dir = app.getPath("userData");
+  fs.mkdirSync(dir, { recursive: true });
+  const error = await shell.openPath(dir);
+  return error ? { ok: false, reason: error, path: dir } : { ok: true, path: dir };
+});
+ipcMain.handle("settings:openLogs", async () => {
+  const dir = getLogsDir();
+  fs.mkdirSync(dir, { recursive: true });
+  const error = await shell.openPath(dir);
+  return error ? { ok: false, reason: error, path: dir } : { ok: true, path: dir };
+});
 const experimentRuns = new Map();
 let experimentRunSeq = 0;
 
@@ -1081,6 +1458,7 @@ async function openWorkbench() {
     webPreferences: { preload: path.join(__dirname, "workbench", "preload.js"), contextIsolation: true, nodeIntegration: false, devTools: !app.isPackaged },
   });
   wbWin.on("closed", () => { wbWin = null; });
+  watchWindowAppearance(wbWin);
   const q = process.env.COMMLAB_WB_EXP ? { query: { exp: process.env.COMMLAB_WB_EXP } } : undefined;
   await wbWin.loadFile(path.join(__dirname, "workbench", "index.html"), q);
   await installWorkbenchReportButton(wbWin);
@@ -1279,7 +1657,7 @@ ipcMain.handle("figure:save", async (_e, payload) => {
 
 ipcMain.handle("report:openFolder", () => shell.openPath(path.join(ROOT, "templates")));
 
-app.whenReady().then(() => { Menu.setApplicationMenu(null); });
+app.whenReady().then(() => { Menu.setApplicationMenu(null); applyGlobalAppearance(readSettings()); });
 app.whenReady().then(() => {
   createWindow();
   if (process.env.COMMLAB_TEST_OPEN) setTimeout(() => {
