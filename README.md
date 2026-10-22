@@ -6,7 +6,12 @@
 
 把 38 道虚拟仿真实验做成一个可安装的桌面工具：题目、参数、拓扑、仿真、报告，一站式。
 
-## 下载\n\n- 安装版：https://github.com/B-LIPSTICK/commlab-studio-public/releases/download/v0.1.5/CommLabStudio-0.1.5-setup.exe\n- 便携版：https://github.com/B-LIPSTICK/commlab-studio-public/releases/download/v0.1.5/CommLabStudio-0.1.5-portable.zip\n\n## 公开源码说明
+## 下载
+
+- 安装版：https://github.com/B-LIPSTICK/commlab-studio-public/releases/download/v0.1.5/CommLabStudio-0.1.5-setup.exe
+- 便携版：https://github.com/B-LIPSTICK/commlab-studio-public/releases/download/v0.1.5/CommLabStudio-0.1.5-portable.zip
+
+## 公开源码说明
 
 这个仓库是**公开源码快照**，不包含：
 
